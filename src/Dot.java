@@ -1,7 +1,6 @@
 public class Dot {
 	private double orbitScale;
 	private double clockwiseScale;
-	
 	public double getOrbitScale() {
 		return orbitScale;
 	}

@@ -1,3 +1,4 @@
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -59,46 +60,58 @@ public class DoilyPanel extends JPanel implements MouseListener, MouseMotionList
 
     	// !!! Border test lines
 
-    	
     	// Map dots across all sectors
     	for (int i=0; i < sectors; i++) {
     		// Draw dots for each line
     		for (Line line : lines) {
-    			g.setColor(line.getColour());
     			int size = line.getScaleFactor()*radius/1000;
-        		for (Dot dot : line.dots) {
+    			g.setColor(line.getColour());
+    			g.setStroke(new BasicStroke(size, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER));
+        		
+    			Point lastPos = null;
+        		Point pos = new Point();
+    			for (Dot dot : line.dots) {
         			// Convert scaled points to absolute points
                 	double angle = dot.getClockwiseScale()*Math.toRadians(sectorAngle);
                 	double orbit = radius*dot.getOrbitScale();
-                	int posX = (int)Math.round(Math.sin(angle)*orbit - size / 2.0);
-                	int posY = (int)Math.round(Math.cos(angle)*orbit + size / 2.0);
+                	
+                	pos.setLocation(centre.x+(int)Math.round(Math.sin(angle)*orbit),
+                			centre.y-(int)Math.round(Math.cos(angle)*orbit));
+           
+                	if (lastPos != null) {
+                		g.drawLine(lastPos.x, lastPos.y, pos.x, pos.y);
+                	}
+                	else {
+                		g.fillOval(pos.x, pos.y,  size,  size);
+                	}
+                	lastPos=new Point(pos);
+
                 	// Draw dot
-                	g.fillOval(centre.x+posX, centre.y-posY,  size,  size);
+                	//g.fillOval(centre.x+posX, centre.y-posY,  size,  size);
         		}
     		}
         	// Rotate for next sector
         	g.rotate(Math.toRadians(sectorAngle), centre.x, centre.y);
     	}
-    	g.setTransform(preRotate);
+   
     	
     	
 		// Draw separators (Top layer)
     	if (settings.isShowSeperators() && sectors != 1) {
 			g.setColor(Color.WHITE);
+			g.setStroke(new BasicStroke());
 	    	for (int i=0; i < sectors; i++) {	    	
 		    		g.drawLine(centre.x, centre.y, centre.x, centre.y-radius);
 		    	// Rotate for next sector
 		    	g.rotate(Math.toRadians(sectorAngle), centre.x, centre.y);
 	    	}	
-    	}
-    	
+    	}	
     	g.dispose();
     }
     
     
 
     private void drawDot(Line line, Point loc) {
-   
     	int max = getMaxSquareDisplay();
     	int radius = max/2;
     	Point centre = getCentre();
@@ -118,7 +131,7 @@ public class DoilyPanel extends JPanel implements MouseListener, MouseMotionList
     		if (lowerAngle < degPos && upperAngle > degPos && distance <= radius) {
     			// Determine relative scaling
     			double orbitScale = distance/radius;
-    			double clockwiseScale = (degPos - lowerAngle)/sectorAngle;
+    			double clockwiseScale = (degPos)/sectorAngle;
     			// Create a new dot using relative point
     			Dot dot = new Dot();
     	    	dot.setOrbitScale(orbitScale);
@@ -164,9 +177,7 @@ public class DoilyPanel extends JPanel implements MouseListener, MouseMotionList
     }
     
 	@Override
-	public void mouseClicked(MouseEvent e) {
-
-	}
+	public void mouseClicked(MouseEvent e) {}
 
 	@Override
 	public void mouseDragged(MouseEvent e) {
