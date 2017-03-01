@@ -29,7 +29,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 /**
- * Doily class. Handles main GUI for creating and managing doilys.
+ * DigitalDoily class. Handles main GUI for creating and managing doilys.
  * 
  * Digital Doily - COMP1206 Coursework
  * @author David Jones [dsj1n15]
@@ -37,7 +37,7 @@ import javax.swing.event.ChangeListener;
 public class DigitalDoily extends JFrame {
 	// GUI Defaults
 	private static final String GUI_NAME = "Digital Doily [dsj1n15]";
-	private static final Dimension GUI_START_SIZE = new Dimension(745, 645);
+	private static final Dimension GUI_START_SIZE = new Dimension(755, 660);
 	private static final Dimension GUI_MINIMUM_SIZE= new Dimension(690, 612);
 
 	// Gallery/Saving Defaults
@@ -189,7 +189,7 @@ public class DigitalDoily extends JFrame {
 		GridBagConstraints gbc_pnlSectors = new GridBagConstraints();
 		gbc_pnlSectors.anchor = GridBagConstraints.WEST;
 		gbc_pnlSectors.gridwidth = 2;
-		gbc_pnlSectors.insets = new Insets(5, 5, 5, 5);
+		gbc_pnlSectors.insets = new Insets(0, 5, 5, 5);
 		gbc_pnlSectors.gridx = 0;
 		gbc_pnlSectors.gridy = 3;
 		pnlDrawingControls.add(pnlSectors, gbc_pnlSectors);
@@ -207,6 +207,10 @@ public class DigitalDoily extends JFrame {
 		sldSectors.setMinimum(DoilySettings.MIN_SECTORS);
 		sldSectors.setMaximum(DoilySettings.MAX_SECTORS);
 		sldSectors.setValue(settings.getSectors());
+		sldSectors.setPaintTicks(true);
+		sldSectors.setPaintLabels(true);
+		sldSectors.setMajorTickSpacing(DoilySettings.MAX_SECTORS-DoilySettings.MIN_SECTORS);
+		sldSectors.setMinorTickSpacing(10);
 		GridBagConstraints gbc_sldSectors = new GridBagConstraints();
 		gbc_sldSectors.gridx = 1;
 		gbc_sldSectors.gridy = 0;
