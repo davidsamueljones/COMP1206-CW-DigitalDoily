@@ -66,26 +66,26 @@ public class GalleryPanel extends JPanel {
 	 * Layout images in gallery.
 	 */
 	public void reloadImages() {
-        // Calculate sizing of content pane
+		// Calculate sizing of content pane
 		int imgCount = images.size();
-    	Dimension imgDimensions = getImageDimensions();
-    	int reqWidth = INDENT*2+imgDimensions.width*imgCount+SPACING*(imgCount-1);
+		Dimension imgDimensions = getImageDimensions();
+		int reqWidth = INDENT*2+imgDimensions.width*imgCount+SPACING*(imgCount-1);
 		pnlContent.setPreferredSize(new Dimension(reqWidth, this.getSize().height));
 		
 		// Draw gallery images 
-        for (int i=0; i < imgCount; i++) {
-        	int x = INDENT+(imgDimensions.width+SPACING)*i;
-        	// Reverse image order
-        	GalleryImage image = images.get(imgCount-i-1);
-        	// Set new position
-        	image.setBounds(x, INDENT, imgDimensions.width, imgDimensions.height);
-        	// Add if not already a member of pnlContent
-        	pnlContent.add(image);
-        }
-        
+		for (int i=0; i < imgCount; i++) {
+			int x = INDENT+(imgDimensions.width+SPACING)*i;
+			// Reverse image order
+			GalleryImage image = images.get(imgCount-i-1);
+			// Set new position
+			image.setBounds(x, INDENT, imgDimensions.width, imgDimensions.height);
+			// Add if not already a member of pnlContent
+			pnlContent.add(image);
+		}
+		
 		// Move scroll bar to view newest image
-        scrContent.revalidate();
-        scrContent.getHorizontalScrollBar().setValue(1);
+		scrContent.revalidate();
+		scrContent.getHorizontalScrollBar().setValue(1);
 		repaint();
 	}
 	
@@ -278,8 +278,8 @@ public class GalleryPanel extends JPanel {
 		public int showOptionDialog() {
 			return showOptionDialog(null,String.format(
 					"'%s' exists.\n Do you wish to overwrite?", path) , "Overwrite", 
-		              JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, 
-		              null, options, options[3]);
+					  JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, 
+					  null, options, options[3]);
 		}
 	}
 	

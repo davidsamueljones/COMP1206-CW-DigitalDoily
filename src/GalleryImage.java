@@ -50,11 +50,11 @@ public class GalleryImage extends JPanel {
 		this.imgHQ = imgHQ;
 		this.imgThumbnail = imgThumbnail;
 		this.gallery = gallery;
-	    
-	    // Set selected false to draw border on construction
-	    setSelected(false);
-	    // Create a new image listener
-	    addMouseListener(new SelectListener());
+		
+		// Set selected false to draw border on construction
+		setSelected(false);
+		// Create a new image listener
+		addMouseListener(new SelectListener());
 	}
 
 	@Override
@@ -105,28 +105,28 @@ public class GalleryImage extends JPanel {
 	 */
 	class SelectListener extends MouseAdapter {
 		 
-    	@Override
-    	public void mousePressed(MouseEvent e) {
-    		// Only acknowledge button1
-    		if ((e.getModifiers() & InputEvent.BUTTON1_MASK) == 0) {
-    			return;
-    		}
-    		
-    		// Deselect other images if Ctrl or Shift not held
-    		int modifierMask = InputEvent.SHIFT_MASK | InputEvent.CTRL_MASK;
-    		if ((e.getModifiers() & modifierMask) == 0) {
-    			gallery.deselectImages();
-    		}
-    		// If already selected deselect, else select
-    		// Deselect can only occur if modifier is held
-    		if (selected) {
-    			setSelected(false);
-    		}
-    		else {
-    			setSelected(true);
-    		}
-    	}
-    	
-    }
+		@Override
+		public void mousePressed(MouseEvent e) {
+			// Only acknowledge button1
+			if ((e.getModifiers() & InputEvent.BUTTON1_MASK) == 0) {
+				return;
+			}
+			
+			// Deselect other images if Ctrl or Shift not held
+			int modifierMask = InputEvent.SHIFT_MASK | InputEvent.CTRL_MASK;
+			if ((e.getModifiers() & modifierMask) == 0) {
+				gallery.deselectImages();
+			}
+			// If already selected deselect, else select
+			// Deselect can only occur if modifier is held
+			if (selected) {
+				setSelected(false);
+			}
+			else {
+				setSelected(true);
+			}
+		}
+		
+	}
 	
 }
