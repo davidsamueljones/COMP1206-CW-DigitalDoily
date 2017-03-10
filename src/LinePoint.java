@@ -56,12 +56,12 @@ public class LinePoint {
 	/**
 	 * Gets the absolute position using the scaled values and values provided for positioning.
 	 * @param radius The absolute radius [Positioning value]
-	 * @param sectorAngle The absolute sector angle [Positioning value]
+	 * @param sectorAngle The absolute sector angle in radians [Positioning value]
 	 * @return The absolute position
 	 */
 	public Point getAbsolutePosition(int radius, double sectorAngle) {
 		// Convert scaled properties to absolute positioning
-		double angle = getClockwiseScale()*Math.toRadians(sectorAngle);
+		double angle = getClockwiseScale()*sectorAngle;
 		double orbit = radius*getOrbitScale();
 		// Convert absolute positioning to absolute points
 		return new Point((int)Math.round(Math.sin(angle)*orbit),

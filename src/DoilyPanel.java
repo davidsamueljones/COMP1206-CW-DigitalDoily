@@ -145,7 +145,7 @@ public class DoilyPanel extends JPanel {
 					g.draw(pathReflected);
 				}	
 				// Rotate for next sector
-				g.rotate(Math.toRadians(sectorAngle), centre.x, centre.y);
+				g.rotate(sectorAngle, centre.x, centre.y);
 			}
 			// Reset rotation (in case of any offset from double accuracy)
 			g.setTransform(preRotate);
@@ -159,7 +159,7 @@ public class DoilyPanel extends JPanel {
 			// Draw separator for each sector
 			for (int i=0; i < sectors; i++) {	    
 				g.drawLine(centre.x, centre.y, centre.x, centre.y-radius);
-				g.rotate(Math.toRadians(sectorAngle), centre.x, centre.y);
+				g.rotate(sectorAngle, centre.x, centre.y);
 			}
 		}
 		// Dispose graphics object
@@ -209,22 +209,20 @@ public class DoilyPanel extends JPanel {
 		// Calculate angular position and distance from centre
 		// Calculate direct distance (radius) using pythagoras
 		double distance = Math.sqrt(Math.pow(relative.x, 2)+Math.pow(relative.y, 2));    	
-		// Find position in radians (y & x swapped for simpler clockwise rotation calculation)
-		double radPos = Math.atan2(relative.y, relative.x);
-		// Find position in degrees, starting from the vertical
-		double degPos = (radPos * 180 / Math.PI + 450) % 360;
-		
+		// Find position in radians (convert to clockwise from the vertical)
+		double radPos = (Math.atan2(relative.y, relative.x) + 2.5*Math.PI) % (2*Math.PI);
+
 		// Find sector in which point resides
 		for (int i=0; i < settings.getSectors(); i++) {
 			// Find sector constraints
 			double lowerAngle = sectorAngle*i;
 			double upperAngle = lowerAngle + sectorAngle;
 			// If point is within sector bounds (radius can be ignored)
-			if ((lowerAngle < degPos && upperAngle > degPos) && 
+			if ((lowerAngle < radPos && upperAngle > radPos) && 
 					(!settings.isCircleBounded() || distance < radius)) {
 				// Determine relative scaling
 				double orbitScale = distance/radius;
-				double clockwiseScale = degPos/sectorAngle;
+				double clockwiseScale = radPos/sectorAngle;
 				// Create a new point with relative scale
 				line.points.add(new LinePoint(orbitScale, clockwiseScale));
 				this.repaint();
@@ -301,7 +299,7 @@ public class DoilyPanel extends JPanel {
 	 * @return The sector angle
 	 */
 	private static double getSectorAngle(int sectors) {
-		return (360.0/sectors);
+		return (2*Math.PI/sectors);
 	}
 	
 	/**
