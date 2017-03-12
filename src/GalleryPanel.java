@@ -74,13 +74,15 @@ public class GalleryPanel extends JPanel {
 		
 		// Draw gallery images 
 		for (int i=0; i < imgCount; i++) {
-			int x = INDENT+(imgDimensions.width+SPACING)*i;
 			// Reverse image order
 			GalleryImage image = images.get(imgCount-i-1);
-			// Set new position
-			image.setBounds(x, INDENT, imgDimensions.width, imgDimensions.height);
-			// Add if not already a member of pnlContent
-			pnlContent.add(image);
+			// Set image position and size
+			image.setBounds(INDENT+(imgDimensions.width+SPACING)*i, INDENT, 
+					imgDimensions.width, imgDimensions.height);
+			// Add panel to pnlContent if new
+			if (image.getParent() == null) {
+				pnlContent.add(image);
+			}
 		}
 		
 		// Move scroll bar to view newest image
