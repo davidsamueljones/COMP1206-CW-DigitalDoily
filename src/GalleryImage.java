@@ -25,7 +25,7 @@ public class GalleryImage extends JPanel {
 	// Default Border Settings
 	private final static Border DEFAULT_BORDER = BorderFactory.createLineBorder(Color.BLACK, 1);
 	// Selected Border Settings
-	private final static Color SELECTED_BORDER_COLOR = new Color(102, 204, 0);
+	private final static Color SELECTED_BORDER_COLOR = new Color(102, 204, 0); // Green
 	private final static Border SELECTED_BORDER_STYLE = BorderFactory.createLineBorder(SELECTED_BORDER_COLOR, 3);
 	private final static Font SELECTED_BORDER_FONT = new Font(null, Font.BOLD, 20);
 	private final static String SELECTED_BORDER_TITLE = "\u2713"; // Unicode Tick

@@ -33,7 +33,6 @@ public class DoilyPanel extends JPanel {
 	
 	// Instance variables
 	private DoilySettings settings;                          // DoilySettings object to use
-
 	private ArrayList<Line> lines;                           // Lines of current drawing
 	private Deque<Line> redoStack = new ArrayDeque<Line>();  // Stack of last undone lines
 	
@@ -96,13 +95,13 @@ public class DoilyPanel extends JPanel {
 		// Determine formatting constraints
 		int max = getMaxSquareDisplay(d);
 		Point centre = getCentre(d);
-		int radius = getRadius(d);
+		int radius = getRadius(d);		
 		
-		// Sector sizing
+		// Determine sector sizing
 		int sectors = settings.getSectors();
 		double sectorAngle = getSectorAngle(settings.getSectors());
 		
-		// Draw concentric circles
+		// DRAW CONCENTRIC CIRCLES (Bottom Layer)
 		if (settings.isShowRings()) {
 			g.setColor(Color.DARK_GRAY);
 			for (int i=1; i <=RING_COUNT; i++) {
@@ -111,17 +110,18 @@ public class DoilyPanel extends JPanel {
 			}
 		}
 
-		// Draw path for each line of points
+		// DRAW PATHS
 		for (Line line : lines) {
 			// Set pen using line settings
 			int size = (int) Math.round(line.getScaleFactor()*radius*PEN_SCALE);
 			g.setColor(line.getColor());
-			g.setStroke(new BasicStroke(size, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-			// Create path objects
-			Path2D path = new Path2D.Double();
-			Path2D pathReflected = new Path2D.Double();
+			g.setStroke(new BasicStroke(size, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));	
+			
+			// Create paths for points positioned normally and reflected
+			// Reflected path may not be required but performance impact is minimal
+			Path2D pathNormal = new Path2D.Float();
+			Path2D pathReflected = new Path2D.Float();
 			boolean isFirst = true;
-			// Loop through all points
 			for (LinePoint point : line.points) {
 				// Get positional coordinates of point
 				Point posAbsolute = point.getAbsolutePosition(radius, sectorAngle);
@@ -129,18 +129,19 @@ public class DoilyPanel extends JPanel {
 				Point posReflected = new Point(centre.x-posAbsolute.x, centre.y-posAbsolute.y);
 				// Create paths
 				if (isFirst) {
-					path.moveTo(posNormal.x, posNormal.y);
+					pathNormal.moveTo(posNormal.x, posNormal.y);
 					pathReflected.moveTo(posReflected.x, posReflected.y);
 					isFirst = false;
 				} else {
-					path.lineTo(posNormal.x, posNormal.y);
+					pathNormal.lineTo(posNormal.x, posNormal.y);
 					pathReflected.lineTo(posReflected.x, posReflected.y);
 				} 
 			}
-			// Map points across all sectors
+			
+			// Draw points for all sectors
 			for (int i=0; i < sectors; i++) {
 				// Draw paths
-				g.draw(path);
+				g.draw(pathNormal);
 				if (line.isReflect()) {
 					g.draw(pathReflected);
 				}	
@@ -151,7 +152,7 @@ public class DoilyPanel extends JPanel {
 			g.setTransform(preRotate);
 		}
 		
-		// Draw separators (Top layer)
+		// DRAW SEPERATORS (Top Layer)
 		if (settings.isShowSeparators() && sectors != 1) {
 			// Reset stroke and set colour
 			g.setColor(Color.WHITE);
@@ -162,8 +163,6 @@ public class DoilyPanel extends JPanel {
 				g.rotate(sectorAngle, centre.x, centre.y);
 			}
 		}
-		// Dispose graphics object
-		g.dispose();
 	}
 
 	/**
@@ -181,7 +180,6 @@ public class DoilyPanel extends JPanel {
 	public void setSettings(DoilySettings settings) {
 		this.settings = settings;
 	}
-
 	
 	/**
 	 * Adds a new line using the current settings.
@@ -209,7 +207,7 @@ public class DoilyPanel extends JPanel {
 		// Calculate angular position and distance from centre
 		// Calculate direct distance (radius) using pythagoras
 		double distance = Math.sqrt(Math.pow(relative.x, 2)+Math.pow(relative.y, 2));    	
-		// Find position in radians (convert to clockwise from the vertical)
+		// Find position in radians (convert so clockwise from the vertical)
 		double radPos = (Math.atan2(relative.y, relative.x) + 2.5*Math.PI) % (2*Math.PI);
 
 		// Find sector in which point resides
