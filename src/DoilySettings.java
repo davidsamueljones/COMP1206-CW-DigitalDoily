@@ -13,14 +13,14 @@ public class DoilySettings {
 	public static final int MIN_PEN_SIZE = 1;
 	public static final int MAX_PEN_SIZE = 100;
 	// Default settings
-	public static final int DEFAULT_SECTORS = 20;
-	public static final boolean DEFAULT_SHOW_SEPERATORS = true;
-	public static final boolean DEFAULT_SHOW_RINGS = true;
-	public static final boolean DEFAULT_ANTI_ALIAS = false;	
-	public static final int DEFAULT_PEN_SCALE = 10;
-	public static final Color DEFAULT_PEN_COLOR = Color.WHITE;
-	public static final boolean DEFAULT_REFLECT = false;
-	public static final boolean DEFAULT_CIRCLE_BOUNDED = true;
+	private static final int DEFAULT_SECTORS = 20;
+	private static final boolean DEFAULT_SHOW_SEPERATORS = true;
+	private static final boolean DEFAULT_SHOW_RINGS = true;
+	private static final boolean DEFAULT_ANTI_ALIAS = false;	
+	private static final int DEFAULT_PEN_SCALE = 10;
+	private static final Color DEFAULT_PEN_COLOR = Color.WHITE;
+	private static final boolean DEFAULT_REFLECT = false;
+	private static final boolean DEFAULT_CIRCLE_BOUNDED = true;
 	
 	// Drawing Settings
 	private int sectors;                // Number of sectors
