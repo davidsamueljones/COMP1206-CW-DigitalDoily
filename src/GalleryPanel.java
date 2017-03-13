@@ -10,6 +10,7 @@ import java.util.Iterator;
 
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingUtilities;
 
 /**
  * GalleryPanel class. Handles the layout and interaction between multiple GalleryImages.
@@ -63,9 +64,15 @@ public class GalleryPanel extends JPanel {
 	}
 	
 	/**
-	 * Layout images in gallery.
+	 * Layout image array in gallery.
 	 */
 	public void reloadImages() {
+		// This method modifies swing components and should therefore
+		// only be run on the event dispatch thread
+		if (!SwingUtilities.isEventDispatchThread()) {
+			throw new RuntimeException("Image reload not on event dispatch thread");
+		}
+		
 		// Calculate sizing of content pane
 		int imgCount = images.size();
 		Dimension imgDimensions = getImageDimensions();
