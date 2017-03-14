@@ -10,6 +10,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Path2D;
+import java.awt.geom.Path2D.Float;
 import java.awt.image.BufferedImage;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -202,7 +203,8 @@ public class DoilyPanel extends JPanel {
 		int radius = getRadius(d);
 		Point centre = getCentre(d);
 		Point relative = new Point(absolute.x-centre.x, absolute.y-centre.y);
-		double sectorAngle = getSectorAngle(settings.getSectors());
+		int sectors = settings.getSectors();
+		double sectorAngle = getSectorAngle(sectors);
 		
 		// Calculate angular position and distance from centre
 		// Calculate direct distance (radius) using pythagoras
@@ -211,9 +213,9 @@ public class DoilyPanel extends JPanel {
 		double radPos = (Math.atan2(relative.y, relative.x) + 2.5*Math.PI) % (2*Math.PI);
 
 		// Find sector in which point resides
-		for (int i=0; i < settings.getSectors(); i++) {
+		for (int sector=0; sector < sectors; sector++) {
 			// Find sector constraints
-			double lowerAngle = sectorAngle*i;
+			double lowerAngle = sectorAngle*sector;
 			double upperAngle = lowerAngle + sectorAngle;
 			// If point is within sector bounds (radius can be ignored)
 			if ((lowerAngle < radPos && upperAngle > radPos) && 
@@ -221,6 +223,13 @@ public class DoilyPanel extends JPanel {
 				// Determine relative scaling
 				double orbitScale = distance/radius;
 				double clockwiseScale = radPos/sectorAngle;
+				// Modify clockwise scaling to take into account wrapping around full circle
+				if (line.points.size() > 0) {
+					double lastClockwiseScale = line.points.get(line.points.size()-1).getClockwiseScale();
+					int wrapCount = (int) Math.floor(((lastClockwiseScale - clockwiseScale) / sectors)+0.5);
+					clockwiseScale+=sectors*wrapCount;
+				}	
+				System.out.println(clockwiseScale);
 				// Create a new point with relative scale
 				line.points.add(new LinePoint(orbitScale, clockwiseScale));
 				this.repaint();
