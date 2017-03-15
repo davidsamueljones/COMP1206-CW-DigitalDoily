@@ -352,9 +352,9 @@ public class DoilyPanel extends JPanel {
 	 * This is used to improve smoothness when reducing sector count. This function will be
 	 * called recursively until distance between reaches target. A fixed plane is used
 	 * so panel sizes do not affect number of points drawn.
-	 * @param startPoint
-	 * @param endPoint
-	 * @param line
+	 * @param startPoint The point to interpolate from
+	 * @param endPoint The point to interpolate to
+	 * @param line The line to add new points to
 	 */
 	private void interpolateBetweenPoints(LinePoint startPoint, LinePoint endPoint, Line line) {
 		// Configuration
