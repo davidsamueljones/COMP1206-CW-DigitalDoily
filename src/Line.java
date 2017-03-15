@@ -14,7 +14,7 @@ public class Line {
 	private boolean reflect;
 	// Line points
 	public ArrayList<LinePoint> points;
-	
+
 	/**
 	 * Instantiates a new line with given settings.
 	 * @param scaleFactor The pen scale factor
@@ -27,7 +27,7 @@ public class Line {
 		this.reflect = reflect;
 		points = new ArrayList<LinePoint>();
 	}
-	
+
 	/**
 	 * Gets the pen scale factor.
 	 * @return The pen scale factor
@@ -35,7 +35,7 @@ public class Line {
 	public int getScaleFactor() {
 		return scaleFactor;
 	}
-	
+
 	/**
 	 * Sets the pen scale factor.
 	 * @param scaleFactor The new pen scale factor
@@ -43,7 +43,7 @@ public class Line {
 	public void setScaleFactor(int scaleFactor) {
 		this.scaleFactor = scaleFactor;
 	}
-	
+
 	/**
 	 * Gets the pen colour.
 	 * @return The pen colour
@@ -51,7 +51,7 @@ public class Line {
 	public Color getColor() {
 		return color;
 	}
-	
+
 	/**
 	 * Sets the pen colour.
 	 * @param color The new pen colour
@@ -59,7 +59,7 @@ public class Line {
 	public void setColor(Color color) {
 		this.color = color;
 	}
-	
+
 	/**
 	 * Checks if is reflect.
 	 * @return true, if should reflect
@@ -67,7 +67,7 @@ public class Line {
 	public boolean isReflect() {
 		return reflect;
 	}
-	
+
 	/**
 	 * Sets whether should be reflected.
 	 * @param reflect The new reflect
@@ -75,5 +75,5 @@ public class Line {
 	public void setReflect(boolean reflect) {
 		this.reflect = reflect;
 	}
-	
+
 }

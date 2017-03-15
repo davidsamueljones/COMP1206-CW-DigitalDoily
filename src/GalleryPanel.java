@@ -10,7 +10,6 @@ import java.util.Iterator;
 
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
-import javax.swing.SwingUtilities;
 
 /**
  * GalleryPanel class. Handles the layout and interaction between multiple GalleryImages.
@@ -24,16 +23,16 @@ public class GalleryPanel extends JPanel {
 	private static final int SPACING = 10;
 	// Export Constants
 	private static final String EXPORT_DIR = "export"; 
-	
+
 	// GUI Objects
 	JPanel pnlContent;
 	JScrollPane scrContent;
-	
+
 	// Instance variables
 	int maxImgCount;                 // Maximum number of images that can be stored
 	double imgRatio;                 // Ratio of width to height
 	ArrayList<GalleryImage> images;  // Images that belong to the gallery
-	
+
 	/**
 	 * Instantiates a new gallery panel.
 	 * @param maxImgCount Maximum number of images that can be stored
@@ -51,7 +50,7 @@ public class GalleryPanel extends JPanel {
 		this.maxImgCount = maxImgCount;
 		this.imgRatio = imgRatio;
 		this.images = new ArrayList<GalleryImage>();
-		
+
 		// Set layout so objects fill panel
 		this.setLayout(new GridLayout(1, 1));
 		// Create pane for gallery
@@ -62,23 +61,19 @@ public class GalleryPanel extends JPanel {
 		scrContent.setPreferredSize(new Dimension(0,0));
 		this.add(scrContent);
 	}
-	
+
 	/**
 	 * Layout image array in gallery.
+	 * This method modifies swing components and should therefore only be run on the 
+	 * event dispatch thread
 	 */
 	public void reloadImages() {
-		// This method modifies swing components and should therefore
-		// only be run on the event dispatch thread
-		if (!SwingUtilities.isEventDispatchThread()) {
-			throw new RuntimeException("Image reload not on event dispatch thread");
-		}
-		
 		// Calculate sizing of content pane
 		int imgCount = images.size();
 		Dimension imgDimensions = getImageDimensions();
 		int reqWidth = INDENT*2+imgDimensions.width*imgCount+SPACING*(imgCount-1);
 		pnlContent.setPreferredSize(new Dimension(reqWidth, this.getSize().height));
-		
+
 		// Draw gallery images 
 		for (int i=0; i < imgCount; i++) {
 			// Reverse image order
@@ -91,13 +86,13 @@ public class GalleryPanel extends JPanel {
 				pnlContent.add(image);
 			}
 		}
-		
+
 		// Move scroll bar to view newest image
 		scrContent.revalidate();
 		scrContent.getHorizontalScrollBar().setValue(1);
 		repaint();
 	}
-	
+
 	/**
 	 * Adds a new image to the gallery.
 	 * @param imgHQ High quality image for GalleryImage
@@ -117,6 +112,25 @@ public class GalleryPanel extends JPanel {
 	}
 
 	/**
+	 * Removes the selected images.
+	 * This method modifies swing components and should therefore only be run on the 
+	 * event dispatch thread
+	 */
+	public void removeSelected() {
+		// Use Iterator so array removal is safe 
+		Iterator<GalleryImage> imagesIterator = images.iterator();
+		while (imagesIterator.hasNext()) {
+			GalleryImage image = imagesIterator.next();
+			if (image.isSelected()) {
+				// Remove from image array and content panel
+				imagesIterator.remove();
+				pnlContent.remove(image);
+			}
+		}
+		reloadImages();
+	}
+	
+	/**
 	 * Exports all selected images to respective files in an export folder.
 	 * Uses batch naming when appropriate (appends -# for each file).
 	 * @param filename the filename
@@ -125,7 +139,7 @@ public class GalleryPanel extends JPanel {
 		Boolean alwaysOverwrite = false;
 		// Find all selected files
 		ArrayList<GalleryImage> selected = getSelected();
-		
+
 		// If multiple selected files, toggle suffixing
 		Boolean batchNaming;
 		if (selected.size() > 1) {
@@ -134,7 +148,7 @@ public class GalleryPanel extends JPanel {
 		else {
 			batchNaming = false;
 		}
-		
+
 		// Loop for all selected images
 		for (int i=0; i < selected.size(); i++) {
 			// Create appropriate path
@@ -145,7 +159,7 @@ public class GalleryPanel extends JPanel {
 			else {
 				path = String.format("%s/%s.png", EXPORT_DIR, filename);
 			}
-			
+
 			// If path exists already, ask for overwrite permission
 			File file = new File(path);
 			boolean export = false;
@@ -176,24 +190,6 @@ public class GalleryPanel extends JPanel {
 			}	
 		}		
 	}
-	
-	/**
-	 * Removes the selected images.
-	 */
-	public void removeSelected() {
-		// Use Iterator so array removal is safe 
-		Iterator<GalleryImage> imagesIterator = images.iterator();
-		while (imagesIterator.hasNext()) {
-			GalleryImage image = imagesIterator.next();
-			if (image.isSelected()) {
-				// Remove from image array and content panel
-				imagesIterator.remove();
-				pnlContent.remove(image);
-			}
-		}
-		reloadImages();
-	}
-	
 
 	/**
 	 * Gets the selected images.
@@ -208,7 +204,7 @@ public class GalleryPanel extends JPanel {
 		}
 		return selected;
 	}
-	
+
 	/**
 	 * Checks if any images are selected.
 	 *
@@ -222,7 +218,7 @@ public class GalleryPanel extends JPanel {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Deselect all images.
 	 */
@@ -231,7 +227,7 @@ public class GalleryPanel extends JPanel {
 			image.setSelected(false);
 		}
 	}
-	
+
 	/**
 	 * Gets an images dimensions (Width & Height).
 	 * @return The image dimensions
@@ -239,7 +235,7 @@ public class GalleryPanel extends JPanel {
 	public Dimension getImageDimensions() {
 		return new Dimension(getImageWidth(), getImageHeight());
 	}
-	
+
 	/**
 	 * Calculates an images width using the height and ratio.
 	 * @return The image width
@@ -247,7 +243,7 @@ public class GalleryPanel extends JPanel {
 	private int getImageWidth() {
 		return (int)Math.round(getImageHeight() * imgRatio);    
 	}
-	
+
 	/**
 	 * Calculates an images height using gallery size.
 	 * @return The image height
@@ -256,7 +252,7 @@ public class GalleryPanel extends JPanel {
 		return this.getSize().height - INDENT*2 - 
 				scrContent.getHorizontalScrollBar().getHeight();
 	}
-	
+
 	/**
 	 * The Class OverwriteMessageBox.
 	 * Used to show option dialogs with the options "Yes, No, Yes To All and Cancel".
@@ -271,7 +267,7 @@ public class GalleryPanel extends JPanel {
 		private final Object[] options = {"Yes", "No", "Yes To All", "Cancel"};
 		// Instance variables
 		private String path;
-		
+
 		/**
 		 * Instantiates a new overwrite message box.
 		 * @param path The path to check
@@ -279,7 +275,7 @@ public class GalleryPanel extends JPanel {
 		public OverwriteMessageBox(String path) {
 			this.path = path;
 		}
-		
+
 		/**
 		 * Show option dialog with presets.
 		 * @return The selected option
@@ -287,9 +283,9 @@ public class GalleryPanel extends JPanel {
 		public int showOptionDialog() {
 			return showOptionDialog(null,String.format(
 					"'%s' exists.\n Do you wish to overwrite?", path) , "Overwrite", 
-					  JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, 
-					  null, options, options[3]);
+					JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, 
+					null, options, options[3]);
 		}
 	}
-	
+
 }

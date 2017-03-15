@@ -10,7 +10,7 @@ public class LinePoint {
 	// Scaled positioning
 	private double orbitScale;      // Position as a percentage of the radius
 	private double clockwiseScale;  // Position as a percentage of the clockwise arc length
-	
+
 	/**
 	 * Instantiates a new gallery panel.
 	 * @param orbitScale The orbit scale
@@ -20,7 +20,7 @@ public class LinePoint {
 		this.orbitScale = orbitScale;
 		this.clockwiseScale = clockwiseScale;
 	}
-	
+
 	/**
 	 * Gets the orbit scale.
 	 * @return The orbit scale
@@ -28,7 +28,7 @@ public class LinePoint {
 	public double getOrbitScale() {
 		return orbitScale;
 	}
-	
+
 	/**
 	 * Sets the orbit scale.
 	 * @param orbitDistance The new orbit scale
@@ -36,7 +36,7 @@ public class LinePoint {
 	public void setOrbitScale(double orbitDistance) {
 		this.orbitScale = orbitDistance;
 	}
-	
+
 	/**
 	 * Gets the clockwise scale.
 	 * @return The clockwise scale
@@ -44,7 +44,7 @@ public class LinePoint {
 	public double getClockwiseScale() {
 		return clockwiseScale;
 	}
-	
+
 	/**
 	 * Sets the clockwise scale.
 	 * @param clockwiseScale The new clockwise scale
@@ -52,20 +52,33 @@ public class LinePoint {
 	public void setClockwiseScale(double clockwiseScale) {
 		this.clockwiseScale = clockwiseScale;
 	}
-	
+
 	/**
-	 * Gets the absolute position using the scaled values and values provided for positioning.
+	 * Get object absolute position using the scaled values and values provided for positioning.
 	 * @param radius The absolute radius [Positioning value]
 	 * @param sectorAngle The absolute sector angle in radians [Positioning value]
 	 * @return The absolute position
 	 */
 	public Point getAbsolutePosition(int radius, double sectorAngle) {
+		return getAbsolutePosition(orbitScale, clockwiseScale, radius, sectorAngle);
+	}
+
+	/**
+	 * Static implementation to get the absolute position of a scaled point using 
+	 * the scaled values and values provided for positioning.
+	 * @param orbitScale Position as a percentage of the radius
+	 * @param clockwiseScale Position as a percentage of the clockwise arc length
+	 * @param radius The absolute radius [Positioning value]
+	 * @param sectorAngle The absolute sector angle in radians [Positioning value]
+	 * @return The absolute position
+	 */
+	public static Point getAbsolutePosition(double orbitScale, double clockwiseScale, int radius, double sectorAngle) {
 		// Convert scaled properties to absolute positioning
-		double angle = getClockwiseScale()*sectorAngle;
-		double orbit = radius*getOrbitScale();
+		double angle = clockwiseScale*sectorAngle;
+		double orbit = radius*orbitScale;
 		// Convert absolute positioning to absolute points
 		return new Point((int)Math.round(Math.sin(angle)*orbit),
-				(int)Math.round(Math.cos(angle)*orbit));
+				-(int)Math.round(Math.cos(angle)*orbit));
 	}
-	
+
 }

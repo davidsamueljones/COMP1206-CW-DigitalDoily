@@ -22,6 +22,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSlider;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
@@ -52,7 +53,12 @@ public class DigitalDoily extends JFrame {
 	 */
 	public DigitalDoily() {
 		// Explicit super() call
-		super();
+		super();	
+		// Check if running on EDT
+		if (!SwingUtilities.isEventDispatchThread()) {
+			throw new IllegalThreadStateException("DigitalDoily not being loaded on event dispatch thread");
+		}	
+		
 		// Set frame properties
 		this.setTitle(GUI_NAME);
 		this.setBounds(100, 100, GUI_START_SIZE.width, GUI_START_SIZE.height);
@@ -237,7 +243,7 @@ public class DigitalDoily extends JFrame {
 		chkShowSeparators.setSelected(settings.isShowSeparators());
 		GridBagConstraints gbc_chkShowSeparators = new GridBagConstraints();
 		gbc_chkShowSeparators.anchor = GridBagConstraints.WEST;
-		gbc_chkShowSeparators.gridwidth = 2;
+		gbc_chkShowSeparators.insets = new Insets(0, 0, 5, 0);
 		gbc_chkShowSeparators.gridx = 0;
 		gbc_chkShowSeparators.gridy = 4;
 		pnlDrawingControls.add(chkShowSeparators, gbc_chkShowSeparators);
@@ -247,10 +253,29 @@ public class DigitalDoily extends JFrame {
 		chkShowRings.setSelected(settings.isShowRings());
 		GridBagConstraints gbc_chkShowRings = new GridBagConstraints();
 		gbc_chkShowRings.anchor = GridBagConstraints.WEST;
-		gbc_chkShowRings.gridwidth = 2;
-		gbc_chkShowRings.gridx = 0;
-		gbc_chkShowRings.gridy = 5;
+		gbc_chkShowRings.insets = new Insets(0, 0, 5, 0);
+		gbc_chkShowRings.gridx = 1;
+		gbc_chkShowRings.gridy = 4;
 		pnlDrawingControls.add(chkShowRings, gbc_chkShowRings);
+
+		// [Drawing Controls] <- Separator
+		JSeparator separator_2 = new JSeparator();
+		GridBagConstraints gbc_separator_2 = new GridBagConstraints();
+		gbc_separator_2.gridwidth = 2;
+		gbc_separator_2.fill = GridBagConstraints.HORIZONTAL;
+		gbc_separator_2.gridx = 0;
+		gbc_separator_2.gridy = 5;
+		pnlDrawingControls.add(separator_2, gbc_separator_2);
+
+		// [Drawing Controls] <- 'Use Image' Check Box
+		JCheckBox chkUseImage = new JCheckBox("Render as Image");
+		chkUseImage.setSelected(settings.isUseImage());
+		GridBagConstraints gbc_chkUseImage = new GridBagConstraints();
+		gbc_chkUseImage.anchor = GridBagConstraints.WEST;
+		gbc_chkUseImage.insets = new Insets(0, 0, 5, 0);
+		gbc_chkUseImage.gridx = 0;
+		gbc_chkUseImage.gridy = 6;
+		pnlDrawingControls.add(chkUseImage, gbc_chkUseImage);
 
 		// [Drawing Controls] <- 'Anti-Alias' Check Box
 		JCheckBox chkAntiAlias = new JCheckBox("Anti-Alias");
@@ -258,8 +283,7 @@ public class DigitalDoily extends JFrame {
 		GridBagConstraints gbc_chkAntiAlias = new GridBagConstraints();
 		gbc_chkAntiAlias.anchor = GridBagConstraints.WEST;
 		gbc_chkAntiAlias.insets = new Insets(0, 0, 5, 0);
-		gbc_chkAntiAlias.gridwidth = 2;
-		gbc_chkAntiAlias.gridx = 0;
+		gbc_chkAntiAlias.gridx = 1;
 		gbc_chkAntiAlias.gridy = 6;
 		pnlDrawingControls.add(chkAntiAlias, gbc_chkAntiAlias);
 
@@ -335,14 +359,14 @@ public class DigitalDoily extends JFrame {
 		pnlPenSettings.add(chkCircleBound, gbc_chkCircleBound);
 
 		// [Pen Settings] <- Separator
-		JSeparator separator_2 = new JSeparator();
-		GridBagConstraints gbc_separator_2 = new GridBagConstraints();
-		gbc_separator_2.fill = GridBagConstraints.HORIZONTAL;
-		gbc_separator_2.gridwidth = 3;
-		gbc_separator_2.insets = new Insets(0, 0, 5, 5);
-		gbc_separator_2.gridx = 0;
-		gbc_separator_2.gridy = 4;
-		pnlPenSettings.add(separator_2, gbc_separator_2);
+		JSeparator separator_3 = new JSeparator();
+		GridBagConstraints gbc_separator_3 = new GridBagConstraints();
+		gbc_separator_3.fill = GridBagConstraints.HORIZONTAL;
+		gbc_separator_3.gridwidth = 3;
+		gbc_separator_3.insets = new Insets(0, 0, 5, 5);
+		gbc_separator_3.gridx = 0;
+		gbc_separator_3.gridy = 4;
+		pnlPenSettings.add(separator_3, gbc_separator_3);
 
 		// [Pen Settings] <- 'Preview' Panel
 		JLabel lblPreview = new JLabel("Preview:");
@@ -463,7 +487,7 @@ public class DigitalDoily extends JFrame {
 				int sectors = sldSectors.getValue();
 				settings.setSectors(sectors);
 				lblSectorCount.setText(String.valueOf(sectors));
-				pnlDisplay.repaint();
+				pnlDisplay.redraw();
 			}
 		});
 
@@ -472,7 +496,7 @@ public class DigitalDoily extends JFrame {
 		chkShowSeparators.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				settings.setShowSeparators(chkShowSeparators.isSelected());
-				pnlDisplay.repaint();
+				pnlDisplay.redraw();
 			}
 		});
 
@@ -481,7 +505,16 @@ public class DigitalDoily extends JFrame {
 		chkShowRings.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				settings.setShowRings(chkShowRings.isSelected());
-				pnlDisplay.repaint();
+				pnlDisplay.redraw();
+			}
+		});
+
+		// [Use Image Check Box]
+		// Update Use Image settings value
+		chkUseImage.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent e) {
+				settings.setUseImage(chkUseImage.isSelected());
+				pnlDisplay.redraw();
 			}
 		});
 
@@ -490,7 +523,7 @@ public class DigitalDoily extends JFrame {
 		chkAntiAlias.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				settings.setAntiAlias(chkAntiAlias.isSelected());
-				pnlDisplay.repaint();
+				pnlDisplay.redraw();
 			}
 		});
 
@@ -530,7 +563,6 @@ public class DigitalDoily extends JFrame {
 		chkCircleBound.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				settings.setCircleBounded(chkCircleBound.isSelected());
-				pnlDisplay.repaint();
 			}
 		});
 

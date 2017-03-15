@@ -16,23 +16,26 @@ public class DoilySettings {
 	private static final int DEFAULT_SECTORS = 20;
 	private static final boolean DEFAULT_SHOW_SEPERATORS = true;
 	private static final boolean DEFAULT_SHOW_RINGS = true;
+	private static final boolean DEFAULT_USE_IMAGE = false;	
 	private static final boolean DEFAULT_ANTI_ALIAS = false;	
 	private static final int DEFAULT_PEN_SCALE = 10;
 	private static final Color DEFAULT_PEN_COLOR = Color.WHITE;
 	private static final boolean DEFAULT_REFLECT = false;
 	private static final boolean DEFAULT_CIRCLE_BOUNDED = true;
-	
+
 	// Drawing Settings
 	private int sectors;                // Number of sectors
 	private boolean showSeparators;     // Whether to show sector separators
 	private boolean showRings;          // Whether to show concentric rings
+	private boolean useImage;           // Whether to render drawings as images
 	private boolean antiAlias;          // Whether anti-aliasing is enabled
+
 	// Pen Settings
 	private int penScale;               // Scale of pen for new lines
 	private Color penColor;             // Colour of the pen for new lines
 	private boolean reflect;            // Whether new lines should be reflected
 	private boolean circleBounded;      // Whether lines should be bound by the circle radius
-	
+
 	/**
 	 * Instantiates a new doily settings with defaults.
 	 */
@@ -40,13 +43,14 @@ public class DoilySettings {
 		setSectors(DEFAULT_SECTORS);
 		setShowSeparators(DEFAULT_SHOW_SEPERATORS);
 		setShowRings(DEFAULT_SHOW_RINGS);
+		setAntiAlias(DEFAULT_USE_IMAGE);
 		setAntiAlias(DEFAULT_ANTI_ALIAS);
 		setPenScale(DEFAULT_PEN_SCALE);
 		setPenColor(DEFAULT_PEN_COLOR);
 		setReflect(DEFAULT_REFLECT);
 		setCircleBounded(DEFAULT_CIRCLE_BOUNDED);
 	}
-	
+
 	/**
 	 * Gets the number of sectors.
 	 * @return The number of sectors
@@ -54,7 +58,7 @@ public class DoilySettings {
 	public int getSectors() {
 		return sectors;
 	}
-	
+
 	/**
 	 * Sets the number of sectors.
 	 * @param sectors The new number of sectors
@@ -62,7 +66,7 @@ public class DoilySettings {
 	public void setSectors(int sectors) {
 		this.sectors = sectors;
 	}
-	
+
 	/**
 	 * Checks value of show separators.
 	 * @return true, if show separators
@@ -70,7 +74,7 @@ public class DoilySettings {
 	public boolean isShowSeparators() {
 		return showSeparators;
 	}
-	
+
 	/**
 	 * Sets whether to show separators.
 	 * @param showSeparators The new value for show separators
@@ -78,7 +82,7 @@ public class DoilySettings {
 	public void setShowSeparators(boolean showSeparators) {
 		this.showSeparators = showSeparators;
 	}
-	
+
 	/**
 	 * Checks value of show rings.
 	 * @return true, if show rings
@@ -94,7 +98,23 @@ public class DoilySettings {
 	public void setShowRings(boolean showRings) {
 		this.showRings = showRings;
 	}
-	
+
+	/**
+	 * Checks value of use image
+	 * @return true, if use image
+	 */
+	public boolean isUseImage() {
+		return useImage;
+	}
+
+	/**
+	 * Sets the value of use image
+	 * @param useImage The new value for use image
+	 */
+	public void setUseImage(boolean useImage) {
+		this.useImage = useImage;
+	}
+
 	/**
 	 * Checks value of anti alias.
 	 * @return true, if anti alias
@@ -110,7 +130,7 @@ public class DoilySettings {
 	public void setAntiAlias(boolean antiAlias) {
 		this.antiAlias = antiAlias;
 	}
-	
+
 	/**
 	 * Gets the pen scale.
 	 * @return the pen scale
@@ -118,7 +138,7 @@ public class DoilySettings {
 	public int getPenScale() {
 		return penScale;
 	}
-	
+
 	/**
 	 * Sets the pen scale.
 	 * @param penScale the new pen scale
@@ -126,7 +146,7 @@ public class DoilySettings {
 	public void setPenScale(int penScale) {
 		this.penScale = penScale;
 	}
-	
+
 	/**
 	 * Gets the pen colour.
 	 * @return The pen colour
@@ -134,7 +154,7 @@ public class DoilySettings {
 	public Color getPenColor() {
 		return penColor;
 	}
-	
+
 	/**
 	 * Sets the pen colour.
 	 * @param penColor The new pen colour
@@ -142,7 +162,7 @@ public class DoilySettings {
 	public void setPenColor(Color penColor) {
 		this.penColor = penColor;
 	}
-	
+
 	/**
 	 * Checks value of reflect.
 	 * @return true, if should reflect
@@ -150,7 +170,7 @@ public class DoilySettings {
 	public boolean isReflect() {
 		return reflect;
 	}
-	
+
 	/**
 	 * Sets whether to reflect.
 	 * @param reflect The new reflect value
@@ -174,5 +194,5 @@ public class DoilySettings {
 	public void setCircleBounded(boolean circleBounded) {
 		this.circleBounded = circleBounded;
 	}
-	
+
 }

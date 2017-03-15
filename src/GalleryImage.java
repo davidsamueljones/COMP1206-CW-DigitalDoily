@@ -12,6 +12,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
@@ -25,20 +26,20 @@ public class GalleryImage extends JPanel {
 	// Default Border Settings
 	private final static Border DEFAULT_BORDER = BorderFactory.createLineBorder(Color.BLACK, 1);
 	// Selected Border Settings
-	private final static Color SELECTED_BORDER_COLOR = new Color(102, 204, 0); // Green
+	private final static Color SELECTED_BORDER_COLOR = new Color(102, 204, 0); // Lime Green
 	private final static Border SELECTED_BORDER_STYLE = BorderFactory.createLineBorder(SELECTED_BORDER_COLOR, 3);
 	private final static Font SELECTED_BORDER_FONT = new Font(null, Font.BOLD, 20);
 	private final static String SELECTED_BORDER_TITLE = "\u2713"; // Unicode Tick
 	private final static Border SELECTED_BORDER = BorderFactory.createTitledBorder(
 			SELECTED_BORDER_STYLE, SELECTED_BORDER_TITLE, TitledBorder.LEADING, 
 			TitledBorder.BELOW_TOP, SELECTED_BORDER_FONT,  SELECTED_BORDER_COLOR); 
-	
+
 	// Instance variables
 	private BufferedImage imgHQ;  // High quality, exportable image
 	private Image imgThumbnail;   // Low quality image
 	private GalleryPanel gallery; // Parent gallery
 	private boolean selected;     // Whether image is selected
-	
+
 	/**
 	 * Instantiates a new gallery image.
 	 * @param imgHQ A high quality version of the image, used for export
@@ -50,7 +51,7 @@ public class GalleryImage extends JPanel {
 		this.imgHQ = imgHQ;
 		this.imgThumbnail = imgThumbnail;
 		this.gallery = gallery;
-		
+
 		// Set selected false to draw border on construction
 		setSelected(false);
 		// Create a new image listener
@@ -63,7 +64,7 @@ public class GalleryImage extends JPanel {
 		// Draw thumbnail
 		g.drawImage(imgThumbnail, 0, 0, null);
 	}
-	
+
 	/**
 	 * Checks if image is selected.
 	 * @return true, if it is selected
@@ -86,7 +87,7 @@ public class GalleryImage extends JPanel {
 			this.setBorder(DEFAULT_BORDER);
 		}
 	}
-	
+
 	/**
 	 * Export the high quality version of the image as a PNG.
 	 * @param path the path
@@ -98,20 +99,20 @@ public class GalleryImage extends JPanel {
 			e1.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * The listener interface for receiving selection events.
 	 * Inner class for GalleryImage.
 	 */
 	class SelectListener extends MouseAdapter {
-		 
+
 		@Override
 		public void mousePressed(MouseEvent e) {
 			// Only acknowledge button1
-			if ((e.getModifiers() & InputEvent.BUTTON1_MASK) == 0) {
+			if (!SwingUtilities.isLeftMouseButton(e)) {
 				return;
 			}
-			
+
 			// Deselect other images if Ctrl or Shift not held
 			int modifierMask = InputEvent.SHIFT_MASK | InputEvent.CTRL_MASK;
 			if ((e.getModifiers() & modifierMask) == 0) {
@@ -126,7 +127,7 @@ public class GalleryImage extends JPanel {
 				setSelected(true);
 			}
 		}
-		
+
 	}
-	
+
 }
