@@ -294,7 +294,7 @@ public class DigitalDoily extends JFrame {
 		gbc_pnlPenSettings.gridy = 1;
 		pnlControl.add(pnlPenSettings, gbc_pnlPenSettings);
 		GridBagLayout gbl_pnlPenSettings = new GridBagLayout();
-		gbl_pnlPenSettings.columnWeights = new double[]{0.5, 0.5, 0.0};
+		gbl_pnlPenSettings.columnWeights = new double[]{0.5, 0.5};
 		pnlPenSettings.setLayout(gbl_pnlPenSettings);
 
 		// [Pen Settings] <- 'Pen Scale' Panel
@@ -400,7 +400,7 @@ public class DigitalDoily extends JFrame {
 		gbc_pnlPreviewHolder.gridy = 5;
 		pnlPenSettings.add(pnlPreviewHolder, gbc_pnlPreviewHolder);
 		GridBagLayout gbl_pnlPreviewHolder = new GridBagLayout();
-		gbl_pnlPreviewHolder.columnWeights = new double[]{0.0, 0.0, 0.0};
+		gbl_pnlPreviewHolder.columnWeights = new double[]{0.0, 1.0};
 		pnlPreviewHolder.setLayout(gbl_pnlPreviewHolder);
 		
 		JLabel lblPreview = new JLabel("Preview:");
@@ -426,9 +426,8 @@ public class DigitalDoily extends JFrame {
 				g.fillOval(10, (this.getHeight()-size)/2, size, size);
 			}
 		};
-		pnlPreview.setBackground(Color.red);
-		pnlPreview.setPreferredSize(new Dimension(50, 50));
 		GridBagConstraints gbc_pnlPreview = new GridBagConstraints();
+		gbc_pnlPreview.ipady = 50; // preview box height
 		gbc_pnlPreview.fill = GridBagConstraints.BOTH;
 		gbc_pnlPreview.gridx = 1;
 		gbc_pnlPreview.gridy = 0;
