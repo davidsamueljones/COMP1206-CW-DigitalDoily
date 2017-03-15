@@ -22,7 +22,8 @@ public class DoilySettings {
 	private static final Color DEFAULT_PEN_COLOR = Color.WHITE;
 	private static final boolean DEFAULT_REFLECT = false;
 	private static final boolean DEFAULT_CIRCLE_BOUNDED = true;
-
+	private static final boolean DEFAULT_INTERPOLATE = true;
+	
 	// Drawing Settings
 	private int sectors;                // Number of sectors
 	private boolean showSeparators;     // Whether to show sector separators
@@ -35,6 +36,7 @@ public class DoilySettings {
 	private Color penColor;             // Colour of the pen for new lines
 	private boolean reflect;            // Whether new lines should be reflected
 	private boolean circleBounded;      // Whether lines should be bound by the circle radius
+	private boolean interpolate;        // Whether lines should use linear interpolation
 
 	/**
 	 * Instantiates a new doily settings with defaults.
@@ -43,12 +45,13 @@ public class DoilySettings {
 		setSectors(DEFAULT_SECTORS);
 		setShowSeparators(DEFAULT_SHOW_SEPERATORS);
 		setShowRings(DEFAULT_SHOW_RINGS);
-		setAntiAlias(DEFAULT_USE_IMAGE);
+		setUseImage(DEFAULT_USE_IMAGE);
 		setAntiAlias(DEFAULT_ANTI_ALIAS);
 		setPenScale(DEFAULT_PEN_SCALE);
 		setPenColor(DEFAULT_PEN_COLOR);
 		setReflect(DEFAULT_REFLECT);
 		setCircleBounded(DEFAULT_CIRCLE_BOUNDED);
+		setInterpolate(DEFAULT_INTERPOLATE);
 	}
 
 	/**
@@ -193,6 +196,22 @@ public class DoilySettings {
 	 */
 	public void setCircleBounded(boolean circleBounded) {
 		this.circleBounded = circleBounded;
+	}
+
+	/**
+	 * Checks value of interpolate.
+	 * @return true, if interpolate
+	 */
+	public boolean isInterpolate() {
+		return interpolate;
+	}
+
+	/**
+	 * Sets whether to interpolate.
+	 * @param circleBounded The new interpolate value
+	 */
+	public void setInterpolate(boolean interpolate) {
+		this.interpolate = interpolate;
 	}
 
 }
