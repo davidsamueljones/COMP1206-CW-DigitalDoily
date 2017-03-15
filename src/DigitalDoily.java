@@ -148,7 +148,7 @@ public class DigitalDoily extends JFrame {
 		gbc_pnlDrawingControls.gridy = 0;
 		pnlControl.add(pnlDrawingControls, gbc_pnlDrawingControls);
 		GridBagLayout gbl_pnlDrawingControls = new GridBagLayout();
-		gbl_pnlDrawingControls.columnWeights = new double[]{1.0, 1.0};
+		gbl_pnlDrawingControls.columnWeights = new double[]{0.5, 0.5, 0.0};
 		pnlDrawingControls.setLayout(gbl_pnlDrawingControls);
 
 		// [Drawing Controls] <- 'Clear' Button
