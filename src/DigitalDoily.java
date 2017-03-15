@@ -202,7 +202,8 @@ public class DigitalDoily extends JFrame {
 		GridBagLayout gbl_pnlSectors = new GridBagLayout();
 		pnlSectors.setLayout(gbl_pnlSectors);
 
-		JLabel lblSectors = new JLabel("Sectors:");
+		FixedWidthLabel lblSectors = new FixedWidthLabel(1);
+		lblSectors.setText("Sectors:");
 		GridBagConstraints gbc_lblSectors = new GridBagConstraints();
 		gbc_lblSectors.anchor = GridBagConstraints.WEST;
 		gbc_lblSectors.gridx = 0;
@@ -223,14 +224,7 @@ public class DigitalDoily extends JFrame {
 		pnlSectors.add(sldSectors, gbc_sldSectors);
 
 		// Displays the current sector count
-		JLabel lblSectorCount = new JLabel() {
-			private static final int WIDTH = 25;
-			/* Formats a string to occupy a fixed number of pixels */
-			@Override
-			public void setText(String str) {
-				super.setText(String.format("<html><div WIDTH=%d>%s</div><html>", WIDTH, str));
-			}
-		};
+		FixedWidthLabel lblSectorCount = new FixedWidthLabel(25);
 		lblSectorCount.setText(String.valueOf(settings.getSectors()));
 		GridBagConstraints gbc_lblSectorCount = new GridBagConstraints();
 		gbc_lblSectorCount.anchor = GridBagConstraints.EAST;
@@ -272,7 +266,7 @@ public class DigitalDoily extends JFrame {
 		chkUseImage.setSelected(settings.isUseImage());
 		GridBagConstraints gbc_chkUseImage = new GridBagConstraints();
 		gbc_chkUseImage.anchor = GridBagConstraints.WEST;
-		gbc_chkUseImage.insets = new Insets(0, 0, 5, 0);
+		gbc_chkUseImage.insets = new Insets(0, 0, 7, 0);
 		gbc_chkUseImage.gridx = 0;
 		gbc_chkUseImage.gridy = 6;
 		pnlDrawingControls.add(chkUseImage, gbc_chkUseImage);
@@ -282,7 +276,7 @@ public class DigitalDoily extends JFrame {
 		chkAntiAlias.setSelected(settings.isAntiAlias());
 		GridBagConstraints gbc_chkAntiAlias = new GridBagConstraints();
 		gbc_chkAntiAlias.anchor = GridBagConstraints.WEST;
-		gbc_chkAntiAlias.insets = new Insets(0, 0, 5, 0);
+		gbc_chkAntiAlias.insets = new Insets(0, 0, 7, 0);
 		gbc_chkAntiAlias.gridx = 1;
 		gbc_chkAntiAlias.gridy = 6;
 		pnlDrawingControls.add(chkAntiAlias, gbc_chkAntiAlias);
@@ -300,18 +294,28 @@ public class DigitalDoily extends JFrame {
 		gbc_pnlPenSettings.gridy = 1;
 		pnlControl.add(pnlPenSettings, gbc_pnlPenSettings);
 		GridBagLayout gbl_pnlPenSettings = new GridBagLayout();
-		gbl_pnlPenSettings.columnWeights = new double[]{0.0, 0.0, 0.0};
+		gbl_pnlPenSettings.columnWeights = new double[]{0.5, 0.5, 0.0};
 		pnlPenSettings.setLayout(gbl_pnlPenSettings);
 
-		// [Pen Settings] <- 'Pen Scale' Slider
-		JLabel lblPenScale = new JLabel("Scale:");
+		// [Pen Settings] <- 'Pen Scale' Panel
+		JPanel pnlPenScale = new JPanel();
+		GridBagConstraints gbc_pnlPenScale = new GridBagConstraints();
+		gbc_pnlPenScale.anchor = GridBagConstraints.WEST;
+		gbc_pnlPenScale.gridwidth = 2;
+		gbc_pnlPenScale.insets = new Insets(0, 5, 5, 5);
+		gbc_pnlPenScale.gridx = 0;
+		gbc_pnlPenScale.gridy = 0;
+		pnlPenSettings.add(pnlPenScale, gbc_pnlPenScale);
+		GridBagLayout gbl_pnlPenScale = new GridBagLayout();
+		pnlPenScale.setLayout(gbl_pnlPenScale);
+
+		JLabel lblPenScale = new JLabel("Scale:   ");
 		GridBagConstraints gbc_lblPenScale = new GridBagConstraints();
 		gbc_lblPenScale.anchor = GridBagConstraints.WEST;
-		gbc_lblPenScale.insets = new Insets(5, 5, 5, 5);
 		gbc_lblPenScale.gridx = 0;
 		gbc_lblPenScale.gridy = 0;
-		pnlPenSettings.add(lblPenScale, gbc_lblPenScale);
-
+		pnlPenScale.add(lblPenScale, gbc_lblPenScale);
+		
 		JSlider sldPenScale = new JSlider();
 		sldPenScale.setMinimum(DoilySettings.MIN_PEN_SIZE);
 		sldPenScale.setMaximum(DoilySettings.MAX_PEN_SIZE);
@@ -321,62 +325,91 @@ public class DigitalDoily extends JFrame {
 		sldPenScale.setMajorTickSpacing(DoilySettings.MAX_PEN_SIZE-DoilySettings.MIN_PEN_SIZE);
 		sldPenScale.setMinorTickSpacing(10);
 		GridBagConstraints gbc_sldPenScale = new GridBagConstraints();
-		gbc_sldPenScale.gridwidth = 2;
-		gbc_sldPenScale.insets = new Insets(5, 0, 5, 5);
 		gbc_sldPenScale.gridx = 1;
 		gbc_sldPenScale.gridy = 0;
-		pnlPenSettings.add(sldPenScale, gbc_sldPenScale);
+		pnlPenScale.add(sldPenScale, gbc_sldPenScale);
+		
+		// Displays the current pen scale
+		FixedWidthLabel lblPenScaleValue = new FixedWidthLabel(25);
+		lblPenScaleValue.setText(String.valueOf(settings.getPenScale()));
+		GridBagConstraints gbc_lblPenSize = new GridBagConstraints();
+		gbc_lblPenSize.anchor = GridBagConstraints.EAST;
+		gbc_lblPenSize.gridx = 2;
+		gbc_lblPenSize.gridy = 0;
+		pnlPenScale.add(lblPenScaleValue, gbc_lblPenSize);
 
 		// [Pen Settings] <- 'Pen Colour' Button 
 		JButton btnSetColour = new JButton("Set Colour");
 		GridBagConstraints gbc_btnSetColour = new GridBagConstraints();
 		gbc_btnSetColour.fill = GridBagConstraints.HORIZONTAL;
-		gbc_btnSetColour.gridwidth = 3;
+		gbc_btnSetColour.gridwidth = 2;
 		gbc_btnSetColour.insets = new Insets(0, 0, 5, 5);
 		gbc_btnSetColour.gridx = 0;
 		gbc_btnSetColour.gridy = 1;
 		pnlPenSettings.add(btnSetColour, gbc_btnSetColour);
 
-		// [Pen Settings] <- 'Reflect Drawn Points' Check Box
-		JCheckBox chkReflect = new JCheckBox("Reflect Drawn Points");
+		// [Pen Settings] <- 'Reflect Points' Check Box
+		JCheckBox chkReflect = new JCheckBox("Reflect Points");
 		chkReflect.setSelected(settings.isReflect());
 		GridBagConstraints gbc_chkReflect = new GridBagConstraints();
 		gbc_chkReflect.anchor = GridBagConstraints.WEST;
-		gbc_chkReflect.gridwidth = 3;
+		gbc_chkReflect.gridwidth = 2;
 		gbc_chkReflect.gridx = 0;
 		gbc_chkReflect.gridy = 2;
 		pnlPenSettings.add(chkReflect, gbc_chkReflect);
-
+		
 		// [Pen Settings] <- 'Bind to Circle' Check Box
 		JCheckBox chkCircleBound = new JCheckBox("Bind to Circle");
 		chkCircleBound.setSelected(settings.isCircleBounded());
 		GridBagConstraints gbc_chkCircleBound = new GridBagConstraints();
 		gbc_chkCircleBound.anchor = GridBagConstraints.WEST;
 		gbc_chkCircleBound.insets = new Insets(0, 0, 5, 5);
-		gbc_chkCircleBound.gridwidth = 3;
 		gbc_chkCircleBound.gridx = 0;
 		gbc_chkCircleBound.gridy = 3;
 		pnlPenSettings.add(chkCircleBound, gbc_chkCircleBound);
 
+		// [Pen Settings] <- 'Interpolate' Check Box
+		JCheckBox chkInterpolate = new JCheckBox("Interpolate");
+		chkInterpolate.setSelected(settings.isInterpolate());
+		GridBagConstraints gbc_chkInterpolate = new GridBagConstraints();
+		gbc_chkInterpolate.anchor = GridBagConstraints.WEST;
+		gbc_chkInterpolate.fill = GridBagConstraints.HORIZONTAL;
+		gbc_chkInterpolate.insets = new Insets(0, 0, 5, 0);
+		gbc_chkInterpolate.gridx = 1;
+		gbc_chkInterpolate.gridy = 3;
+		pnlPenSettings.add(chkInterpolate, gbc_chkInterpolate);
+		
 		// [Pen Settings] <- Separator
 		JSeparator separator_3 = new JSeparator();
 		GridBagConstraints gbc_separator_3 = new GridBagConstraints();
 		gbc_separator_3.fill = GridBagConstraints.HORIZONTAL;
-		gbc_separator_3.gridwidth = 3;
+		gbc_separator_3.gridwidth = 2;
 		gbc_separator_3.insets = new Insets(0, 0, 5, 5);
 		gbc_separator_3.gridx = 0;
 		gbc_separator_3.gridy = 4;
 		pnlPenSettings.add(separator_3, gbc_separator_3);
 
 		// [Pen Settings] <- 'Preview' Panel
+		JPanel pnlPreviewHolder = new JPanel();
+		GridBagConstraints gbc_pnlPreviewHolder = new GridBagConstraints();
+		gbc_pnlPreviewHolder.anchor = GridBagConstraints.WEST;
+		gbc_pnlPreviewHolder.gridwidth = 2;
+		gbc_pnlPreviewHolder.insets = new Insets(0, 5, 5, 5);
+		gbc_pnlPreviewHolder.fill = GridBagConstraints.HORIZONTAL;
+		gbc_pnlPreviewHolder.gridx = 0;
+		gbc_pnlPreviewHolder.gridy = 5;
+		pnlPenSettings.add(pnlPreviewHolder, gbc_pnlPreviewHolder);
+		GridBagLayout gbl_pnlPreviewHolder = new GridBagLayout();
+		gbl_pnlPreviewHolder.columnWeights = new double[]{0.0, 0.0, 0.0};
+		pnlPreviewHolder.setLayout(gbl_pnlPreviewHolder);
+		
 		JLabel lblPreview = new JLabel("Preview:");
 		GridBagConstraints gbc_lblPreview = new GridBagConstraints();
 		gbc_lblPreview.anchor = GridBagConstraints.WEST;
-		gbc_lblPreview.gridwidth = 2;
-		gbc_lblPreview.insets = new Insets(0, 5, 5, 5);
+		gbc_lblPreview.insets = new Insets(0, 0, 0, 5);
 		gbc_lblPreview.gridx = 0;
-		gbc_lblPreview.gridy = 5;
-		pnlPenSettings.add(lblPreview, gbc_lblPreview);
+		gbc_lblPreview.gridy = 0;
+		pnlPreviewHolder.add(lblPreview, gbc_lblPreview);
 
 		JPanel pnlPreview = new JPanel() {
 			/* Draws an oval using current settings to indicate pen */
@@ -393,13 +426,13 @@ public class DigitalDoily extends JFrame {
 				g.fillOval(10, (this.getHeight()-size)/2, size, size);
 			}
 		};
+		pnlPreview.setBackground(Color.red);
+		pnlPreview.setPreferredSize(new Dimension(50, 50));
 		GridBagConstraints gbc_pnlPreview = new GridBagConstraints();
-		gbc_pnlPreview.ipady = 50;
-		gbc_pnlPreview.insets = new Insets(0, 0, 5, 5);
 		gbc_pnlPreview.fill = GridBagConstraints.BOTH;
-		gbc_pnlPreview.gridx = 2;
-		gbc_pnlPreview.gridy = 5;
-		pnlPenSettings.add(pnlPreview, gbc_pnlPreview);
+		gbc_pnlPreview.gridx = 1;
+		gbc_pnlPreview.gridy = 0;
+		pnlPreviewHolder.add(pnlPreview, gbc_pnlPreview);
 
 		// ---------------------------------------
 
@@ -531,7 +564,9 @@ public class DigitalDoily extends JFrame {
 		// Update Pen scale settings value
 		sldPenScale.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
-				settings.setPenScale(sldPenScale.getValue());
+				int penScale = sldPenScale.getValue();
+				settings.setPenScale(penScale);
+				lblPenScaleValue.setText(String.valueOf(penScale));
 				pnlPreview.repaint();
 			}
 		});
@@ -565,6 +600,15 @@ public class DigitalDoily extends JFrame {
 				settings.setCircleBounded(chkCircleBound.isSelected());
 			}
 		});
+		
+		// [Interpolate Check Box]
+		// Update Interpolate settings value
+		chkInterpolate.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent e) {
+				settings.setInterpolate(chkInterpolate.isSelected());
+			}
+		});
+		
 
 		// [Save Button]
 		// Save the display to the gallery
@@ -631,4 +675,24 @@ public class DigitalDoily extends JFrame {
 		});
 	}
 
+	/**
+	 * Inner class defined so strings can be displayed in a fixed width.
+	 */
+	class FixedWidthLabel extends JLabel {
+		private int width;
+		
+		/**
+		 * Constructor for FixedWidthLabel
+		 * @param width Width of string
+		 */
+		public FixedWidthLabel(int width) {
+			this.width = width;
+		}
+	
+		@Override
+		public void setText(String str) {
+			super.setText(String.format("<html><div WIDTH=%d>%s</div><html>", width, str));
+		}
+		
+	}
 }
