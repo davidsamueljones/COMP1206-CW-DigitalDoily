@@ -1,3 +1,4 @@
+import java.awt.Dimension;
 import java.awt.Point;
 
 /**
@@ -79,6 +80,52 @@ public class LinePoint {
 		// Convert absolute positioning to absolute points
 		return new Point((int)Math.round(Math.sin(angle)*orbit),
 				-(int)Math.round(Math.cos(angle)*orbit));
+	}
+	
+	/**
+	 * Convert an absolute point (from a centre) to a scaled point using positioning values.
+	 * Use settings to determine invalid points and use a previous point to handle wrapped values.
+	 * @param absolute Point centred around [0,0]
+	 * @param d Dimension point was recorded in
+	 * @param sectors Number of sectors point was recorded in
+	 * @param radiusBound Whether to invalidate point if it does not fall within dimension radius
+	 * @param lastPoint An existing point used to calculate point wrapping (null is valid)
+	 * @return Scaled point if valid, else null 
+	 */
+	public static LinePoint scalePoint(Point absolute, Dimension d, int sectors, 
+			Boolean radiusBound, LinePoint lastPoint) {
+		// Determine capturing constraints
+		int radius = DoilyPanel.getRadius(d);
+		double sectorAngle = DoilyPanel.getSectorAngle(sectors);
+
+		// Calculate angular position and distance from centre
+		// Calculate direct distance (radius) using pythagoras
+		double distance = Math.sqrt(Math.pow(absolute.x, 2)+Math.pow(absolute.y, 2));    	
+		// Find position in radians (convert so clockwise from the vertical)
+		double radPos = (Math.atan2(absolute.y, absolute.x) + 2.5*Math.PI) % (2*Math.PI);
+
+		// Find sector in which point resides
+		for (int sector=0; sector < sectors; sector++) {
+			// Find sector constraints
+			double lowerAngle = sectorAngle*sector;
+			double upperAngle = lowerAngle + sectorAngle;
+			// If point is within sector bounds
+			if (lowerAngle <= radPos && upperAngle > radPos && (!radiusBound || distance < radius)) {
+				// Determine relative scaling
+				double orbitScale = distance/radius;
+				double clockwiseScale = radPos/sectorAngle;				
+				LinePoint newPoint = new LinePoint(orbitScale, clockwiseScale);
+				// Handle influence of existing points 
+				if (lastPoint != null) {
+					// Modify clockwise scaling to take into account wrapping around full circle
+					int wrapCount = (int) Math.floor(((lastPoint.getClockwiseScale() - clockwiseScale) / sectors)+0.5);
+					newPoint.setClockwiseScale(clockwiseScale+sectors*wrapCount);
+				}
+				return newPoint;
+			}
+		}
+		// Point does not reside in any sector
+		return null;
 	}
 
 }

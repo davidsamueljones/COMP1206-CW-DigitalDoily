@@ -32,7 +32,10 @@ public class DoilyPanel extends JPanel {
 	// Graphic display options
 	private static final double PEN_SCALE = 1/1000.0;
 	private static final int RING_COUNT = 10;
-
+	// Point capture settings
+	private static int DEFAULT_INTERPOLATION_RESOLUTION = 10000;
+	private static double DEFAULT_INTERPOLATION_SCALE_FACTOR = 0.01;
+	
 	// Instance variables
 	private BufferedImage pnlImage;                          // Current drawing image
 	private DoilySettings settings;                          // DoilySettings object to use
@@ -91,6 +94,7 @@ public class DoilyPanel extends JPanel {
 			drawDoily(g, size);
 		}
 	}
+	
 	/**
 	 * Resets the image object, forcing a full redraw on paint.
 	 * Triggers repaint to apply updates.
@@ -301,78 +305,73 @@ public class DoilyPanel extends JPanel {
 	}
 
 	/**
-	 * Adds an absolute point to a given line as a relative point.
+	 * Adds an absolute point to a given line as a scaled point.
 	 * @param line The line to add to
-	 * @param absolute The absolute position of the point to add
+	 * @param point Point to add
+	 * @param d Dimension to scale point to
 	 */
 	private void addPointToLine(Line line, Point point, Dimension d) {
-		// Determine capturing constraints
-		int radius = getRadius(d);
-		int sectors = settings.getSectors();
-		double sectorAngle = getSectorAngle(sectors);
-
-		// Calculate angular position and distance from centre
-		// Calculate direct distance (radius) using pythagoras
-		double distance = Math.sqrt(Math.pow(point.x, 2)+Math.pow(point.y, 2));    	
-		// Find position in radians (convert so clockwise from the vertical)
-		double radPos = (Math.atan2(point.y, point.x) + 2.5*Math.PI) % (2*Math.PI);
-
-		// Find sector in which point resides
-		for (int sector=0; sector < sectors; sector++) {
-			// Find sector constraints
-			double lowerAngle = sectorAngle*sector;
-			double upperAngle = lowerAngle + sectorAngle;
-			// If point is within sector bounds
-			if (lowerAngle < radPos && upperAngle > radPos) {
-				// Determine relative scaling
-				double orbitScale = distance/radius;
-				double clockwiseScale = radPos/sectorAngle;				
-				LinePoint newPoint = new LinePoint(orbitScale, clockwiseScale);
-
-				// Handle behaviour if existing points
-				if (line.points.size() > 0) {
-					// Modify clockwise scaling to take into account wrapping around full circle
-					LinePoint lastPoint = line.points.get(line.points.size()-1);
-					int wrapCount = (int) Math.floor(((lastPoint.getClockwiseScale() - clockwiseScale) / sectors)+0.5);
-					newPoint.setClockwiseScale(clockwiseScale+sectors*wrapCount);
-					// Handle interpolation for sector change smoothing
-					interpolateBetweenPoints(lastPoint, newPoint, line);
-				}		
-
-				// Add if new point within sector bounds relative scale
-				if (!settings.isCircleBounded() || distance < radius) {
-					line.points.add(newPoint);
-				}		
-			}
+		// Check for existing points in line
+		LinePoint lastPoint = null;
+		if (line.points.size() > 0) {
+			// Modify clockwise scaling to take into account wrapping around full circle
+			 lastPoint = line.points.get(line.points.size()-1);
+		}		
+		// Find scaled point
+		LinePoint newPoint = LinePoint.scalePoint(point, d, 
+				settings.getSectors(), settings.isCircleBounded(), lastPoint);	
+		
+		// Handle interpolation for sector change smoothing
+		if (settings.isInterpolate()) {
+			interpolateBetweenPoints(lastPoint, newPoint, line);	
 		}
+		// Add scaled point
+		if (newPoint != null) {
+			line.points.add(newPoint);
+		}		
 	}
 
 	/**
 	 * Use interpolation to add extra points between points in case of large jumps. 
-	 * This is used to improve smoothness when reducing sector count. This function will be
+	 * This can be used to improve smoothness when reducing sector count. This function will be
 	 * called recursively until distance between reaches target. A fixed plane is used
 	 * so panel sizes do not affect number of points drawn.
-	 * @param startPoint The point to interpolate from
-	 * @param endPoint The point to interpolate to
+	 * @param start The point to interpolate from (not null)
+	 * @param end The point to interpolate to (not null)
 	 * @param line The line to add new points to
 	 */
-	private void interpolateBetweenPoints(LinePoint startPoint, LinePoint endPoint, Line line) {
-		// Configuration
-		int resSize = 100;
-		int boundModifier = 10;
+	private void interpolateBetweenPoints(LinePoint start, LinePoint end, Line line) {
+		// Validate exit conditions
+		if (start == null || end == null) {
+			return;
+		}
+		
+		// Configure interpolation settings
+		int planeSize = DEFAULT_INTERPOLATION_RESOLUTION;
+		double scaleFactor = DEFAULT_INTERPOLATION_SCALE_FACTOR;
 		double sectorAngle = getSectorAngle(settings.getSectors());
-		Dimension resolution = new Dimension(resSize, resSize);
+		Dimension planeResolution = new Dimension(planeSize, planeSize);
+		int planeRadius = getRadius(planeResolution);
+	
 		// Recreate points in interpolation plane
-		Point lastAbs = startPoint.getAbsolutePosition(getRadius(resolution), sectorAngle);
-		Point newAbs = endPoint.getAbsolutePosition(getRadius(resolution), sectorAngle);
-		Point dif = new Point(newAbs.x - lastAbs.x, newAbs.y - lastAbs.y);
-		double dis = Math.sqrt(Math.pow(dif.x, 2) + Math.pow(dif.y, 2));
-		// If points are far apart, create point between
-		if (dis > resSize/boundModifier) {
-			Point interval = new Point(dif.x/2, dif.y/2);
-			Point relativePoint = new Point(lastAbs.x + interval.x, lastAbs.y + interval.y);
-			// Add point, this will result in the interpolate function being recalled
-			addPointToLine(line, relativePoint, resolution);
+		Point startPoint = start.getAbsolutePosition(planeRadius, sectorAngle);
+		Point endPoint = end.getAbsolutePosition(planeRadius, sectorAngle);
+		// Calculate midpoint
+		Point difPoints = new Point(endPoint.x - startPoint.x, endPoint.y - startPoint.y);
+		Point relPoint = new Point(startPoint.x + difPoints.x/2, startPoint.y + difPoints.y/2);
+		// Recreate point as a scaled position
+		LinePoint scaledpoint = LinePoint.scalePoint(relPoint, planeResolution, 
+				settings.getSectors(), settings.isCircleBounded(), start);	
+
+		// If new point is valid and not zero
+		if ((difPoints.x != 0 || difPoints.y != 0) && scaledpoint != null) {
+			LinePoint scaledDif = new LinePoint(Math.abs(scaledpoint.getOrbitScale() - start.getOrbitScale()),
+					Math.abs(scaledpoint.getClockwiseScale() - start.getClockwiseScale()));
+			// Add point if separation is high
+			if (scaledDif.getOrbitScale() > scaleFactor || scaledDif.getClockwiseScale() > scaleFactor) {
+				// Add point, this will result in the interpolate function being recalled
+				addPointToLine(line, relPoint, planeResolution);
+			}
 		}
 	}
 
@@ -444,7 +443,7 @@ public class DoilyPanel extends JPanel {
 	 * Gets the angle of a sector for a given number of sectors.
 	 * @return The sector angle
 	 */
-	private static double getSectorAngle(int sectors) {
+	public static double getSectorAngle(int sectors) {
 		return (2*Math.PI/sectors);
 	}
 
@@ -473,7 +472,7 @@ public class DoilyPanel extends JPanel {
 	 * @param d The dimension
 	 * @return The size of either dimension (Width == Height)
 	 */
-	private static int getMaxSquareDisplay(Dimension d) {
+	public static int getMaxSquareDisplay(Dimension d) {
 		return (int) Math.round(Math.min(d.width, d.height)*USEABLE_AREA);
 	}
 
@@ -482,7 +481,7 @@ public class DoilyPanel extends JPanel {
 	 * @param d The dimension
 	 * @return The radius
 	 */
-	private static int getRadius(Dimension d) {
+	public static int getRadius(Dimension d) {
 		int max = getMaxSquareDisplay(d);
 		return max/2;
 	}
@@ -499,8 +498,10 @@ public class DoilyPanel extends JPanel {
 			if (!SwingUtilities.isLeftMouseButton(e)) {
 				return;
 			}
+			
 			// Add a point to a new line
 			addPointToLine(addLine(), centrePoint(e.getPoint(), getSize()), getSize());
+			
 			// Forget lines from undo
 			clearRedoStack();
 			repaint();
@@ -512,6 +513,7 @@ public class DoilyPanel extends JPanel {
 			if (!SwingUtilities.isLeftMouseButton(e)) {
 				return;
 			}
+			
 			// Add a point to the current line
 			addPointToLine(getLastLine(), centrePoint(e.getPoint(), getSize()), getSize());
 			repaint();
