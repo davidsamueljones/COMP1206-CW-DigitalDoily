@@ -1,5 +1,7 @@
 import java.awt.EventQueue;
 
+import javax.swing.UIManager;
+
 /**
  * Main class. Used to start a Doily GUI.
  * 
@@ -13,6 +15,13 @@ public class Main {
 	 * @param args Passed arguments [Program uses no arguments]
 	 */
 	public static void main(String[] args) {
+		// Get natural GUI appearance (for Windows)
+		try {
+		    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (Exception e) {
+		    System.err.println("Error setting look and feel");
+		}
+		// Create new Digital Doily on EDT 
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
