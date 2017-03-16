@@ -21,7 +21,7 @@ public class DoilySettings {
 	private static final int DEFAULT_PEN_SCALE = 10;
 	private static final Color DEFAULT_PEN_COLOR = Color.WHITE;
 	private static final boolean DEFAULT_REFLECT = false;
-	private static final boolean DEFAULT_CIRCLE_BOUNDED = true;
+	private static final boolean DEFAULT_CIRCLE_BOUNDED = false;
 	private static final boolean DEFAULT_INTERPOLATE = true;
 	
 	// Drawing Settings
