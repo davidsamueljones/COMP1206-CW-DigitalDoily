@@ -75,5 +75,14 @@ public class Line {
 	public void setReflect(boolean reflect) {
 		this.reflect = reflect;
 	}
-
+	
+	@Override
+	public Line clone() {
+		Line newLine = new Line(scaleFactor, color, reflect);
+		for (LinePoint point : points) {
+			newLine.points.add(point.clone());
+		}
+		return newLine;
+	}
+	
 }
