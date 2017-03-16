@@ -131,4 +131,9 @@ public class LinePoint {
 		return null;
 	}
 
+	@Override
+	public LinePoint clone() {
+		return new LinePoint(orbitScale, clockwiseScale);
+	}
+	
 }
