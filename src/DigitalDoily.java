@@ -38,9 +38,16 @@ import javax.swing.event.ChangeListener;
 public class DigitalDoily extends JFrame {
 	// GUI Defaults
 	private static final String GUI_NAME = "Digital Doily [dsj1n15]";
-	private static final Dimension GUI_START_SIZE = new Dimension(755, 660);
-	private static final Dimension GUI_MINIMUM_SIZE= new Dimension(690, 612);
-
+	private static final int GUI_DEFAULT_DOILY_SIZE = 350; 
+	private static final int GUI_CONTROLS_WIDTH = 323; 
+	private static final int GUI_GALLERY_HEIGHT = 200;
+	private static final double GUI_DEFAULT_SCALE = 1.5;
+	private static final Dimension GUI_MINIMUM_SIZE = new Dimension(
+			GUI_CONTROLS_WIDTH+GUI_DEFAULT_DOILY_SIZE, GUI_GALLERY_HEIGHT+GUI_DEFAULT_DOILY_SIZE);
+	private static final Dimension GUI_START_SIZE = new Dimension(
+			(int)Math.round(GUI_MINIMUM_SIZE.width*GUI_DEFAULT_SCALE), 
+			(int)Math.round(GUI_MINIMUM_SIZE.height*GUI_DEFAULT_SCALE));
+	
 	// Gallery/Saving Defaults
 	private static final int MAX_GALLERY_IMAGES = 12;
 	private static final double GALLERY_IMG_RATIO = 1; // Ratio of Width->Height
@@ -85,8 +92,8 @@ public class DigitalDoily extends JFrame {
 
 		// Set frame to use grid bag layout (Growing main panel, fixed width bottom and side panels)
 		GridBagLayout gblFrame = new GridBagLayout();
-		gblFrame.columnWidths = new int[] {0, 323, 0};
-		gblFrame.rowHeights = new int[] {0, 200, 0};
+		gblFrame.columnWidths = new int[] {0, GUI_CONTROLS_WIDTH, 0};
+		gblFrame.rowHeights = new int[] {0, GUI_GALLERY_HEIGHT, 0};
 		gblFrame.columnWeights = new double[]{1.0, 0.0, Double.MIN_VALUE};
 		gblFrame.rowWeights = new double[]{1.0, 0.0, Double.MIN_VALUE};
 		this.getContentPane().setLayout(gblFrame);
@@ -148,7 +155,7 @@ public class DigitalDoily extends JFrame {
 		gbc_pnlDrawingControls.gridy = 0;
 		pnlControl.add(pnlDrawingControls, gbc_pnlDrawingControls);
 		GridBagLayout gbl_pnlDrawingControls = new GridBagLayout();
-		gbl_pnlDrawingControls.columnWeights = new double[]{0.5, 0.5, 0.0};
+		gbl_pnlDrawingControls.columnWeights = new double[]{0.5, 0.5};
 		pnlDrawingControls.setLayout(gbl_pnlDrawingControls);
 
 		// [Drawing Controls] <- 'Clear' Button
@@ -156,34 +163,45 @@ public class DigitalDoily extends JFrame {
 		GridBagConstraints gbc_btnClear = new GridBagConstraints();
 		gbc_btnClear.gridwidth = 2;
 		gbc_btnClear.fill = GridBagConstraints.HORIZONTAL;
-		gbc_btnClear.insets = new Insets(5, 5, 0, 5);
+		gbc_btnClear.insets = new Insets(5, 5, 5, 5);
 		gbc_btnClear.gridx = 0;
 		gbc_btnClear.gridy = 0;
 		pnlDrawingControls.add(btnClear, gbc_btnClear);
-
-		// [Drawing Controls] <- 'Undo' Button
+		
+		// [Drawing Controls] <- 'Undo & Redo' Buttons
+		JPanel pnlUndoRedo = new JPanel();
+		GridBagConstraints gbc_pnlUndoRedo = new GridBagConstraints();
+		gbc_pnlUndoRedo.gridwidth = 2;
+		gbc_pnlUndoRedo.fill = GridBagConstraints.HORIZONTAL;
+		gbc_pnlUndoRedo.insets = new Insets(0, 5, 5, 5);
+		gbc_pnlUndoRedo.gridx = 0;
+		gbc_pnlUndoRedo.gridy = 1;
+		pnlDrawingControls.add(pnlUndoRedo, gbc_pnlUndoRedo);
+		GridBagLayout gbl_pnlUndoRedo = new GridBagLayout();
+		gbl_pnlUndoRedo.columnWeights = new double[]{0.5, 0.5};
+		pnlUndoRedo.setLayout(gbl_pnlUndoRedo);
+		
 		JButton btnUndo = new JButton("Undo");
 		GridBagConstraints gbc_btnUndo = new GridBagConstraints();
-		gbc_btnUndo.gridwidth = 1;
-		gbc_btnUndo.insets = new Insets(0, 5, 5, 0);
+		gbc_btnUndo.insets = new Insets(0, 0, 0, 2);
 		gbc_btnUndo.fill = GridBagConstraints.HORIZONTAL;
 		gbc_btnUndo.gridx = 0;
-		gbc_btnUndo.gridy = 1;
-		pnlDrawingControls.add(btnUndo, gbc_btnUndo);
+		gbc_btnUndo.gridy = 0;
+		pnlUndoRedo.add(btnUndo, gbc_btnUndo);
 
-		// [Drawing Controls] <- 'Redo' Button
+
 		JButton btnRedo = new JButton("Redo");
 		GridBagConstraints gbc_btnRedo = new GridBagConstraints();
-		gbc_btnRedo.gridwidth = 1;
-		gbc_btnRedo.insets = new Insets(0, 0, 5, 5);
+		gbc_btnRedo.insets = new Insets(0, 2, 0, 0);
 		gbc_btnRedo.fill = GridBagConstraints.HORIZONTAL;
 		gbc_btnRedo.gridx = 1;
-		gbc_btnRedo.gridy = 1;
-		pnlDrawingControls.add(btnRedo, gbc_btnRedo);
+		gbc_btnRedo.gridy = 0;
+		pnlUndoRedo.add(btnRedo, gbc_btnRedo);
 
 		// [Drawing Controls] <- Separator
 		JSeparator separator_1 = new JSeparator();
 		GridBagConstraints gbc_separator_1 = new GridBagConstraints();
+		gbc_separator_1.insets = new Insets(0, 0, 5, 0);
 		gbc_separator_1.gridwidth = 2;
 		gbc_separator_1.fill = GridBagConstraints.HORIZONTAL;
 		gbc_separator_1.gridx = 0;
@@ -202,7 +220,7 @@ public class DigitalDoily extends JFrame {
 		GridBagLayout gbl_pnlSectors = new GridBagLayout();
 		pnlSectors.setLayout(gbl_pnlSectors);
 
-		FixedWidthLabel lblSectors = new FixedWidthLabel(1);
+		JLabel lblSectors = new JLabel();
 		lblSectors.setText("Sectors:");
 		GridBagConstraints gbc_lblSectors = new GridBagConstraints();
 		gbc_lblSectors.anchor = GridBagConstraints.WEST;
@@ -237,7 +255,7 @@ public class DigitalDoily extends JFrame {
 		chkShowSeparators.setSelected(settings.isShowSeparators());
 		GridBagConstraints gbc_chkShowSeparators = new GridBagConstraints();
 		gbc_chkShowSeparators.anchor = GridBagConstraints.WEST;
-		gbc_chkShowSeparators.insets = new Insets(0, 0, 5, 0);
+		gbc_chkShowSeparators.insets = new Insets(0, 5, 5, 0);
 		gbc_chkShowSeparators.gridx = 0;
 		gbc_chkShowSeparators.gridy = 4;
 		pnlDrawingControls.add(chkShowSeparators, gbc_chkShowSeparators);
@@ -255,6 +273,7 @@ public class DigitalDoily extends JFrame {
 		// [Drawing Controls] <- Separator
 		JSeparator separator_2 = new JSeparator();
 		GridBagConstraints gbc_separator_2 = new GridBagConstraints();
+		gbc_separator_2.insets = new Insets(0, 5, 5, 5);
 		gbc_separator_2.gridwidth = 2;
 		gbc_separator_2.fill = GridBagConstraints.HORIZONTAL;
 		gbc_separator_2.gridx = 0;
@@ -266,7 +285,7 @@ public class DigitalDoily extends JFrame {
 		chkUseImage.setSelected(settings.isUseImage());
 		GridBagConstraints gbc_chkUseImage = new GridBagConstraints();
 		gbc_chkUseImage.anchor = GridBagConstraints.WEST;
-		gbc_chkUseImage.insets = new Insets(0, 0, 7, 0);
+		gbc_chkUseImage.insets = new Insets(0, 5, 5, 0);
 		gbc_chkUseImage.gridx = 0;
 		gbc_chkUseImage.gridy = 6;
 		pnlDrawingControls.add(chkUseImage, gbc_chkUseImage);
@@ -276,7 +295,7 @@ public class DigitalDoily extends JFrame {
 		chkAntiAlias.setSelected(settings.isAntiAlias());
 		GridBagConstraints gbc_chkAntiAlias = new GridBagConstraints();
 		gbc_chkAntiAlias.anchor = GridBagConstraints.WEST;
-		gbc_chkAntiAlias.insets = new Insets(0, 0, 7, 0);
+		gbc_chkAntiAlias.insets = new Insets(0, 0, 5, 0);
 		gbc_chkAntiAlias.gridx = 1;
 		gbc_chkAntiAlias.gridy = 6;
 		pnlDrawingControls.add(chkAntiAlias, gbc_chkAntiAlias);
@@ -343,7 +362,7 @@ public class DigitalDoily extends JFrame {
 		GridBagConstraints gbc_btnSetColour = new GridBagConstraints();
 		gbc_btnSetColour.fill = GridBagConstraints.HORIZONTAL;
 		gbc_btnSetColour.gridwidth = 2;
-		gbc_btnSetColour.insets = new Insets(0, 0, 5, 5);
+		gbc_btnSetColour.insets = new Insets(0, 5, 5, 5);
 		gbc_btnSetColour.gridx = 0;
 		gbc_btnSetColour.gridy = 1;
 		pnlPenSettings.add(btnSetColour, gbc_btnSetColour);
@@ -353,6 +372,7 @@ public class DigitalDoily extends JFrame {
 		chkReflect.setSelected(settings.isReflect());
 		GridBagConstraints gbc_chkReflect = new GridBagConstraints();
 		gbc_chkReflect.anchor = GridBagConstraints.WEST;
+		gbc_chkReflect.insets = new Insets(0, 5, 5, 5);
 		gbc_chkReflect.gridwidth = 2;
 		gbc_chkReflect.gridx = 0;
 		gbc_chkReflect.gridy = 2;
@@ -363,7 +383,7 @@ public class DigitalDoily extends JFrame {
 		chkCircleBound.setSelected(settings.isCircleBounded());
 		GridBagConstraints gbc_chkCircleBound = new GridBagConstraints();
 		gbc_chkCircleBound.anchor = GridBagConstraints.WEST;
-		gbc_chkCircleBound.insets = new Insets(0, 0, 5, 5);
+		gbc_chkCircleBound.insets = new Insets(0, 5, 5, 5);
 		gbc_chkCircleBound.gridx = 0;
 		gbc_chkCircleBound.gridy = 3;
 		pnlPenSettings.add(chkCircleBound, gbc_chkCircleBound);
@@ -384,7 +404,7 @@ public class DigitalDoily extends JFrame {
 		GridBagConstraints gbc_separator_3 = new GridBagConstraints();
 		gbc_separator_3.fill = GridBagConstraints.HORIZONTAL;
 		gbc_separator_3.gridwidth = 2;
-		gbc_separator_3.insets = new Insets(0, 0, 5, 5);
+		gbc_separator_3.insets = new Insets(0, 5, 5, 5);
 		gbc_separator_3.gridx = 0;
 		gbc_separator_3.gridy = 4;
 		pnlPenSettings.add(separator_3, gbc_separator_3);
@@ -418,7 +438,7 @@ public class DigitalDoily extends JFrame {
 				super.paintComponent(gr);
 				Graphics2D g = (Graphics2D) gr;
 				// Get pen properties
-				int size = pnlDisplay.getPenSize(settings.getPenScale());
+				int size = DoilyUtilities.getPenSize(settings.getPenScale(), pnlDisplay.getSize());
 				g.setColor(settings.getPenColor());
 				g.setRenderingHints(new RenderingHints(RenderingHints.KEY_ANTIALIASING, 
 						RenderingHints.VALUE_ANTIALIAS_ON));
@@ -437,7 +457,8 @@ public class DigitalDoily extends JFrame {
 
 		// [Side Panel] <- 'Gallery Controls' panel
 		JPanel pnlGalleryControls = new JPanel();
-		pnlGalleryControls.setBorder(new TitledBorder(null, "Gallery Controls", TitledBorder.LEADING, TitledBorder.TOP));
+		pnlGalleryControls.setBorder(new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null), 
+				"Gallery Controls", TitledBorder.LEADING, TitledBorder.TOP));
 		GridBagConstraints gbc_pnlGalleryControls = new GridBagConstraints();
 		gbc_pnlGalleryControls.insets = new Insets(0, 5, 0, 5);
 		gbc_pnlGalleryControls.fill = GridBagConstraints.BOTH;
@@ -452,7 +473,7 @@ public class DigitalDoily extends JFrame {
 		JButton btnSave = new JButton("Save to Gallery");
 		GridBagConstraints gbc_btnSave = new GridBagConstraints();
 		gbc_btnSave.fill = GridBagConstraints.HORIZONTAL;
-		gbc_btnSave.insets = new Insets(5, 5, 0, 5);
+		gbc_btnSave.insets = new Insets(5, 5, 5, 5);
 		gbc_btnSave.gridx = 0;
 		gbc_btnSave.gridy = 0;
 		pnlGalleryControls.add(btnSave, gbc_btnSave);
@@ -461,7 +482,7 @@ public class DigitalDoily extends JFrame {
 		JButton btnExportSelected = new JButton("Export Selected");
 		GridBagConstraints gbc_btnExportSelected = new GridBagConstraints();
 		gbc_btnExportSelected.fill = GridBagConstraints.HORIZONTAL;
-		gbc_btnExportSelected.insets = new Insets(0, 5, 0, 5);
+		gbc_btnExportSelected.insets = new Insets(0, 5, 5, 5);
 		gbc_btnExportSelected.gridx = 0;
 		gbc_btnExportSelected.gridy = 1;
 		pnlGalleryControls.add(btnExportSelected, gbc_btnExportSelected);
