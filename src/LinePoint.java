@@ -87,16 +87,16 @@ public class LinePoint {
 	 * Use settings to determine invalid points and use a previous point to handle wrapped values.
 	 * @param absolute Point centred around [0,0]
 	 * @param d Dimension point was recorded in
-	 * @param sectors Number of sectors point was recorded in
-	 * @param radiusBound Whether to invalidate point if it does not fall within dimension radius
+	 * @param settings Settings object used for recording
 	 * @param lastPoint An existing point used to calculate point wrapping (null is valid)
 	 * @return Scaled point if valid, else null 
 	 */
-	public static LinePoint scalePoint(Point absolute, Dimension d, int sectors, 
-			Boolean radiusBound, LinePoint lastPoint) {
+	public static LinePoint scalePoint(Point absolute, Dimension d, 
+			DoilySettings settings, LinePoint lastPoint) {
 		// Determine capturing constraints
-		int radius = DoilyPanel.getRadius(d);
-		double sectorAngle = DoilyPanel.getSectorAngle(sectors);
+		int radius = DoilyUtilities.getRadius(d);
+		int sectors = settings.getSectors();
+		double sectorAngle = DoilyUtilities.getSectorAngle(sectors);
 
 		// Calculate angular position and distance from centre
 		// Calculate direct distance (radius) using pythagoras
@@ -109,8 +109,11 @@ public class LinePoint {
 			// Find sector constraints
 			double lowerAngle = sectorAngle*sector;
 			double upperAngle = lowerAngle + sectorAngle;
+			double maxDistance = radius - DoilyUtilities.getPenSize(settings.getPenScale(), d)/2;
+			
 			// If point is within sector bounds
-			if (lowerAngle <= radPos && upperAngle > radPos && (!radiusBound || distance < radius)) {
+			if (lowerAngle <= radPos && upperAngle > radPos && 
+					(!settings.isCircleBounded() || distance < maxDistance)) {
 				// Determine relative scaling
 				double orbitScale = distance/radius;
 				double clockwiseScale = radPos/sectorAngle;				

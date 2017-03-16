@@ -27,14 +27,11 @@ import javax.swing.SwingUtilities;
  * @author David Jones [dsj1n15]
  */
 public class DoilyPanel extends JPanel {
-	// Display options
-	private static final double USEABLE_AREA = 0.95;
 	// Graphic display options
-	private static final double PEN_SCALE = 1/1000.0;
 	private static final int RING_COUNT = 10;
 	// Point capture settings
-	private static int DEFAULT_INTERPOLATION_RESOLUTION = 10000;
-	private static double DEFAULT_INTERPOLATION_SCALE_FACTOR = 0.01;
+	private static int DEFAULT_INTERPOLATION_RESOLUTION = 100000;
+	private static double DEFAULT_INTERPOLATION_SCALE_FACTOR = 0.05;
 	
 	// Instance variables
 	private BufferedImage pnlImage;                          // Current drawing image
@@ -187,7 +184,7 @@ public class DoilyPanel extends JPanel {
 	private void drawRings(Graphics2D g, Dimension d) {
 		if (settings.isShowRings()) {
 			// Determine formatting constraints
-			int max = getMaxSquareDisplay(d);
+			int max = DoilyUtilities.getMaxSquareDisplay(d);
 			// Reset stroke and set colour
 			g.setColor(Color.DARK_GRAY);
 			g.setStroke(new BasicStroke());
@@ -207,14 +204,14 @@ public class DoilyPanel extends JPanel {
 	 */
 	private void drawLine(Graphics2D g, Line line, Dimension d) {
 		// Determine formatting constraints
-		Point centre = getCentre(d);
-		int radius = getRadius(d);		
+		Point centre = DoilyUtilities.getCentre(d);
+		int radius = DoilyUtilities.getRadius(d);		
 		int sectors = settings.getSectors();
-		double sectorAngle = getSectorAngle(sectors);
+		double sectorAngle = DoilyUtilities.getSectorAngle(sectors);
 		AffineTransform preRotate = g.getTransform();
 
 		// Set pen using line settings
-		int size = (int) Math.round(line.getScaleFactor()*radius*PEN_SCALE);
+		int size = DoilyUtilities.getPenSize(line.getScaleFactor(), d);
 		g.setColor(line.getColor());
 		g.setStroke(new BasicStroke(size, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));	
 
@@ -251,6 +248,8 @@ public class DoilyPanel extends JPanel {
 		}
 		// Reset rotation (in case of any offset from double accuracy)
 		g.setTransform(preRotate);
+		// Reset stroke
+		g.setStroke(new BasicStroke());
 	}
 
 	/**
@@ -259,40 +258,33 @@ public class DoilyPanel extends JPanel {
 	 * @param d Dimension to scale separators to
 	 */
 	private void drawSeperators(Graphics2D g, Dimension d) {
-		if (settings.isShowSeparators() && settings.getSectors() != 1) {
+		if (settings.isShowSeparators()) { //&& settings.getSectors() != 1) {
 			// Determine formatting constraints
-			Point centre = getCentre(d);
+			Point centre = DoilyUtilities.getCentre(d);
 			int sectors = settings.getSectors();
+			int radius = DoilyUtilities.getRadius(d);
 			AffineTransform preRotate = g.getTransform();
 			// Reset stroke and set colour
 			g.setColor(Color.WHITE);
 			g.setStroke(new BasicStroke());
 			// Draw separator for each sector
 			for (int i=0; i < sectors; i++) {	    
-				g.drawLine(centre.x, centre.y, centre.x, centre.y-getRadius(d));
-				g.rotate(getSectorAngle(sectors), centre.x, centre.y);
+				g.drawLine(centre.x, centre.y, centre.x, centre.y-radius);
+				g.rotate(DoilyUtilities.getSectorAngle(sectors), centre.x, centre.y);
 			}
 			// Reset transform (in case of any offset from double accuracy)
 			g.setTransform(preRotate);
 		}
 	}
-
+	
 	/**
-	 * Gets the current settings object.
-	 * @return The settings
+	 * Gets the last line to be added.
+	 * @return The last line
 	 */
-	public DoilySettings getSettings() {
-		return settings;
+	private Line getLastLine() {
+		return lines.get(lines.size()-1);
 	}
-
-	/**
-	 * Sets the settings object.
-	 * @param settings The new settings
-	 */
-	public void setSettings(DoilySettings settings) {
-		this.settings = settings;
-	}
-
+	
 	/**
 	 * Adds a new line using the current settings.
 	 * @return The new line
@@ -318,8 +310,7 @@ public class DoilyPanel extends JPanel {
 			 lastPoint = line.points.get(line.points.size()-1);
 		}		
 		// Find scaled point
-		LinePoint newPoint = LinePoint.scalePoint(point, d, 
-				settings.getSectors(), settings.isCircleBounded(), lastPoint);	
+		LinePoint newPoint = LinePoint.scalePoint(point, d, settings, lastPoint);	
 		
 		// Handle interpolation for sector change smoothing
 		if (settings.isInterpolate()) {
@@ -349,9 +340,9 @@ public class DoilyPanel extends JPanel {
 		// Configure interpolation settings
 		int planeSize = DEFAULT_INTERPOLATION_RESOLUTION;
 		double scaleFactor = DEFAULT_INTERPOLATION_SCALE_FACTOR;
-		double sectorAngle = getSectorAngle(settings.getSectors());
+		double sectorAngle = DoilyUtilities.getSectorAngle(settings.getSectors());
 		Dimension planeResolution = new Dimension(planeSize, planeSize);
-		int planeRadius = getRadius(planeResolution);
+		int planeRadius = DoilyUtilities.getRadius(planeResolution);
 	
 		// Recreate points in interpolation plane
 		Point startPoint = start.getAbsolutePosition(planeRadius, sectorAngle);
@@ -360,8 +351,7 @@ public class DoilyPanel extends JPanel {
 		Point difPoints = new Point(endPoint.x - startPoint.x, endPoint.y - startPoint.y);
 		Point relPoint = new Point(startPoint.x + difPoints.x/2, startPoint.y + difPoints.y/2);
 		// Recreate point as a scaled position
-		LinePoint scaledpoint = LinePoint.scalePoint(relPoint, planeResolution, 
-				settings.getSectors(), settings.isCircleBounded(), start);	
+		LinePoint scaledpoint = LinePoint.scalePoint(relPoint, planeResolution, settings, start);	
 
 		// If new point is valid and not zero
 		if ((difPoints.x != 0 || difPoints.y != 0) && scaledpoint != null) {
@@ -376,13 +366,21 @@ public class DoilyPanel extends JPanel {
 	}
 
 	/**
-	 * Gets the last line to be added.
-	 * @return The last line
+	 * Gets the current settings object.
+	 * @return The settings
 	 */
-	private Line getLastLine() {
-		return lines.get(lines.size()-1);
+	public DoilySettings getSettings() {
+		return settings;
 	}
 
+	/**
+	 * Sets the settings object.
+	 * @param settings The new settings
+	 */
+	public void setSettings(DoilySettings settings) {
+		this.settings = settings;
+	}
+	
 	/**
 	 * Clear all lines and the redo stack.
 	 */
@@ -423,67 +421,12 @@ public class DoilyPanel extends JPanel {
 					"Redo", JOptionPane.ERROR_MESSAGE);
 		}
 	}
-
-	/**
-	 * Gets the absolute pen size for the current pen scale on the current display.
-	 * @return The absolute pen size
-	 */
-	public int getPenSize(int penScale) {
-		return (int) Math.round(settings.getPenScale()*getRadius(this.getSize())*PEN_SCALE);
-	}    
-
+	
 	/**
 	 * Clear the redo stack.
 	 */
 	private void clearRedoStack() {
 		redoStack.clear();
-	}
-
-	/**
-	 * Gets the angle of a sector for a given number of sectors.
-	 * @return The sector angle
-	 */
-	public static double getSectorAngle(int sectors) {
-		return (2*Math.PI/sectors);
-	}
-
-	/**
-	 * Gets the centre point of a given dimension.
-	 * @param d The dimension
-	 * @return The centre point
-	 */
-	private static Point getCentre(Dimension d) {
-		return new Point(d.width/2, d.height/2);
-	}
-
-	/**
-	 * Orient a point around a given dimensions centre.
-	 * @param p The point
-	 * @param d The dimension
-	 * @return The centred point
-	 */
-	private static Point centrePoint(Point p, Dimension d) {
-		Point centre = getCentre(d);
-		return new Point(p.x-centre.x, p.y-centre.y);
-	}
-
-	/**
-	 * Gets the maximum display area of a dimension if it were considered square.
-	 * @param d The dimension
-	 * @return The size of either dimension (Width == Height)
-	 */
-	public static int getMaxSquareDisplay(Dimension d) {
-		return (int) Math.round(Math.min(d.width, d.height)*USEABLE_AREA);
-	}
-
-	/**
-	 * Gets the radius of a Doily for a given dimension.
-	 * @param d The dimension
-	 * @return The radius
-	 */
-	public static int getRadius(Dimension d) {
-		int max = getMaxSquareDisplay(d);
-		return max/2;
 	}
 
 	/**
@@ -500,7 +443,7 @@ public class DoilyPanel extends JPanel {
 			}
 			
 			// Add a point to a new line
-			addPointToLine(addLine(), centrePoint(e.getPoint(), getSize()), getSize());
+			addPointToLine(addLine(), DoilyUtilities.centrePoint(e.getPoint(), getSize()), getSize());
 			
 			// Forget lines from undo
 			clearRedoStack();
@@ -515,7 +458,7 @@ public class DoilyPanel extends JPanel {
 			}
 			
 			// Add a point to the current line
-			addPointToLine(getLastLine(), centrePoint(e.getPoint(), getSize()), getSize());
+			addPointToLine(getLastLine(), DoilyUtilities.centrePoint(e.getPoint(), getSize()), getSize());
 			repaint();
 		}	
 
