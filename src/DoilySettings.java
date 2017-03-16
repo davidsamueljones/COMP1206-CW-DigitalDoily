@@ -14,14 +14,14 @@ public class DoilySettings {
 	public static final int MAX_PEN_SIZE = 100;
 	// Default settings
 	private static final int DEFAULT_SECTORS = 20;
-	private static final boolean DEFAULT_SHOW_SEPERATORS = true;
+	private static final boolean DEFAULT_SHOW_SEPARATORS = true;
 	private static final boolean DEFAULT_SHOW_RINGS = true;
 	private static final boolean DEFAULT_USE_IMAGE = false;	
 	private static final boolean DEFAULT_ANTI_ALIAS = false;	
 	private static final int DEFAULT_PEN_SCALE = 10;
 	private static final Color DEFAULT_PEN_COLOR = Color.WHITE;
 	private static final boolean DEFAULT_REFLECT = false;
-	private static final boolean DEFAULT_CIRCLE_BOUNDED = false;
+	private static final boolean DEFAULT_CIRCLE_BOUNDED = true;
 	private static final boolean DEFAULT_INTERPOLATE = true;
 	
 	// Drawing Settings
@@ -42,18 +42,42 @@ public class DoilySettings {
 	 * Instantiates a new doily settings with defaults.
 	 */
 	public DoilySettings() {
-		setSectors(DEFAULT_SECTORS);
-		setShowSeparators(DEFAULT_SHOW_SEPERATORS);
-		setShowRings(DEFAULT_SHOW_RINGS);
-		setUseImage(DEFAULT_USE_IMAGE);
-		setAntiAlias(DEFAULT_ANTI_ALIAS);
-		setPenScale(DEFAULT_PEN_SCALE);
-		setPenColor(DEFAULT_PEN_COLOR);
-		setReflect(DEFAULT_REFLECT);
-		setCircleBounded(DEFAULT_CIRCLE_BOUNDED);
-		setInterpolate(DEFAULT_INTERPOLATE);
+		this(DEFAULT_SECTORS, DEFAULT_SHOW_SEPARATORS, DEFAULT_SHOW_RINGS, 
+				DEFAULT_USE_IMAGE, DEFAULT_ANTI_ALIAS, DEFAULT_PEN_SCALE, 
+				DEFAULT_PEN_COLOR, DEFAULT_REFLECT, DEFAULT_CIRCLE_BOUNDED, 
+				DEFAULT_INTERPOLATE);
+	}
+	
+	/**
+	 * Instantiates a new doily settings with given values.
+	 * @param sectors Number of sectors
+	 * @param showSeperators Whether to show sector separators
+	 * @param showRings Whether to show concentric rings
+	 * @param useImage Whether to render drawings as images
+	 * @param antiAlias Whether anti-aliasing is enabled
+	 * @param penScale Scale of pen for new lines
+	 * @param penColor Colour of the pen for new lines
+	 * @param reflect Whether new lines should be reflected
+	 * @param circleBounded Whether lines should be bound by the circle radius
+	 * @param interpolate Whether lines should use linear interpolation
+	 */
+	public DoilySettings(int sectors, boolean showSeperators, boolean showRings, 
+			boolean useImage, boolean antiAlias, int penScale, Color penColor, 
+			boolean reflect, boolean circleBounded, boolean interpolate) {
+		// Assign setting arguments
+		this.sectors = sectors;
+		this.showSeparators = showSeperators;
+		this.showRings = showRings;
+		this.useImage = useImage;
+		this.antiAlias = antiAlias;
+		this.penScale = penScale;
+		this.penColor = penColor;
+		this.reflect = reflect;
+		this.circleBounded = circleBounded;
+		this.interpolate = interpolate;
 	}
 
+	
 	/**
 	 * Gets the number of sectors.
 	 * @return The number of sectors
@@ -214,4 +238,10 @@ public class DoilySettings {
 		this.interpolate = interpolate;
 	}
 
+	@Override
+	public DoilySettings clone() {
+		return new DoilySettings(sectors, showSeparators, showRings, useImage, 
+				antiAlias, penScale, penColor, reflect, circleBounded, interpolate);
+	}
+	
 }
