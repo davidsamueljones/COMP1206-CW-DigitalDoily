@@ -15,11 +15,11 @@ public class Main {
 	 * @param args Passed arguments [Program uses no arguments]
 	 */
 	public static void main(String[] args) {
-		// Get natural GUI appearance (for Windows)
+		// Get natural GUI appearance
 		try {
-		    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (Exception e) {
-		    System.err.println("Error setting look and feel");
+			System.err.println("Error setting look and feel");
 		}
 		// Create new Digital Doily on EDT 
 		EventQueue.invokeLater(new Runnable() {

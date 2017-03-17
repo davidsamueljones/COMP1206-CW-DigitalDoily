@@ -2,8 +2,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.awt.Image;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -23,6 +21,7 @@ public class GalleryPanel extends JPanel {
 	private static final int SPACING = 10;
 	// Export Constants
 	private static final String EXPORT_DIR = "export"; 
+	private static final int EXPORT_HEIGHT = 5000;
 
 	// GUI Objects
 	JPanel pnlContent;
@@ -95,10 +94,9 @@ public class GalleryPanel extends JPanel {
 
 	/**
 	 * Adds a new image to the gallery.
-	 * @param imgHQ High quality image for GalleryImage
-	 * @param imgThumbnail Low quality image for GalleryImage
+	 * @param doily The doily object to add to the gallery
 	 */
-	public void addImage(BufferedImage imgHQ, Image imgThumbnail) {
+	public void addImage(DoilyState doily) {
 		// Add image if maximum not reached
 		if (images.size() >= maxImgCount) {
 			JOptionPane.showMessageDialog(null,
@@ -106,7 +104,7 @@ public class GalleryPanel extends JPanel {
 					"Add Image", JOptionPane.ERROR_MESSAGE);
 		}
 		else {
-			images.add(new GalleryImage(imgHQ, imgThumbnail, this));
+			images.add(new GalleryImage(doily, this));
 			reloadImages();
 		}
 	}
@@ -114,7 +112,7 @@ public class GalleryPanel extends JPanel {
 	/**
 	 * Removes the selected images.
 	 * This method modifies swing components and should therefore only be run on the 
-	 * event dispatch thread
+	 * event dispatch thread.
 	 */
 	public void removeSelected() {
 		// Use Iterator so array removal is safe 
@@ -129,14 +127,16 @@ public class GalleryPanel extends JPanel {
 		}
 		reloadImages();
 	}
-	
+
 	/**
 	 * Exports all selected images to respective files in an export folder.
 	 * Uses batch naming when appropriate (appends -# for each file).
-	 * @param filename the filename
+	 * @param filename The filename
 	 */
 	public void exportSelected(String filename) {
 		Boolean alwaysOverwrite = false;
+		Dimension size = new Dimension(EXPORT_HEIGHT, (int) Math.round(EXPORT_HEIGHT*imgRatio));
+
 		// Find all selected files
 		ArrayList<GalleryImage> selected = getSelected();
 
@@ -186,7 +186,7 @@ public class GalleryPanel extends JPanel {
 			// Export image, creating path if required
 			if (export) {
 				file.getParentFile().mkdirs();
-				selected.get(i).exportHQ(path);
+				selected.get(i).export(path, size);
 			}	
 		}		
 	}
@@ -195,7 +195,7 @@ public class GalleryPanel extends JPanel {
 	 * Gets the selected images.
 	 * @return The selected images
 	 */
-	private ArrayList<GalleryImage> getSelected() {	
+	public ArrayList<GalleryImage> getSelected() {	
 		ArrayList<GalleryImage> selected = new ArrayList<GalleryImage>();
 		for (GalleryImage image : images){
 			if (image.isSelected()) {

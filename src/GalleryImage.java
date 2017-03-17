@@ -1,4 +1,5 @@
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Image;
@@ -35,25 +36,27 @@ public class GalleryImage extends JPanel {
 			TitledBorder.BELOW_TOP, SELECTED_BORDER_FONT,  SELECTED_BORDER_COLOR); 
 
 	// Instance variables
-	private BufferedImage imgHQ;  // High quality, exportable image
-	private Image imgThumbnail;   // Low quality image
+	private DoilyState doily;     // Saved doily state
 	private GalleryPanel gallery; // Parent gallery
 	private boolean selected;     // Whether image is selected
+	private Image imgThumbnail;   // Low quality image
 
 	/**
 	 * Instantiates a new gallery image.
-	 * @param imgHQ A high quality version of the image, used for export
-	 * @param imgThumbnail A low quality version of the image used for display
+	 * @param doily Doily object stored by gallery image
 	 * @param gallery The parent gallery
 	 */
-	public GalleryImage(BufferedImage imgHQ, Image imgThumbnail, GalleryPanel gallery) {
+	public GalleryImage(DoilyState doily, GalleryPanel gallery) {
 		// Assign arguments
-		this.imgHQ = imgHQ;
-		this.imgThumbnail = imgThumbnail;
+		this.doily = doily;
 		this.gallery = gallery;
-
 		// Set selected false to draw border on construction
-		setSelected(false);
+		setSelected(false);	
+
+		// Create thumbnail image
+		imgThumbnail = new DoilyDrawer(doily).
+				getDoilyImage(gallery.getImageDimensions());
+
 		// Create a new image listener
 		addMouseListener(new SelectListener());
 	}
@@ -63,6 +66,14 @@ public class GalleryImage extends JPanel {
 		super.paintComponent(g);
 		// Draw thumbnail
 		g.drawImage(imgThumbnail, 0, 0, null);
+	}
+
+	/**
+	 * Gets the current doily object.
+	 * @return The doily
+	 */
+	public DoilyState getDoily() {
+		return doily;
 	}
 
 	/**
@@ -89,12 +100,15 @@ public class GalleryImage extends JPanel {
 	}
 
 	/**
-	 * Export the high quality version of the image as a PNG.
+	 * Export stored doily image as a PNG.
 	 * @param path the path
+	 * @param d the dimension to export at
 	 */
-	public void exportHQ(String path) {
+	public void export(String path, Dimension d) {
+		// Create thumbnail image
+		BufferedImage exportImage = new DoilyDrawer(doily).getDoilyImage(d);
 		try {
-			ImageIO.write(imgHQ, "PNG", new File(path));
+			ImageIO.write(exportImage, "PNG", new File(path));
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}

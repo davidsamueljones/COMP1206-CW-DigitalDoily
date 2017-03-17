@@ -11,7 +11,7 @@ public class DoilyUtilities {
 	// Utility options
 	private static final double USEABLE_AREA = 0.95;
 	private static final double PEN_SCALE = 1/1000.0;
-	
+
 	/**
 	 * Gets the absolute pen size for the current pen scale on the current display.
 	 * @param penScale The size to scale
@@ -68,5 +68,5 @@ public class DoilyUtilities {
 		int max = getMaxSquareDisplay(d);
 		return max/2;
 	}
-	
+
 }

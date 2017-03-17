@@ -23,7 +23,7 @@ public class DoilySettings {
 	private static final boolean DEFAULT_REFLECT = false;
 	private static final boolean DEFAULT_CIRCLE_BOUNDED = true;
 	private static final boolean DEFAULT_INTERPOLATE = true;
-	
+
 	// Drawing Settings
 	private int sectors;                // Number of sectors
 	private boolean showSeparators;     // Whether to show sector separators
@@ -47,7 +47,7 @@ public class DoilySettings {
 				DEFAULT_PEN_COLOR, DEFAULT_REFLECT, DEFAULT_CIRCLE_BOUNDED, 
 				DEFAULT_INTERPOLATE);
 	}
-	
+
 	/**
 	 * Instantiates a new doily settings with given values.
 	 * @param sectors Number of sectors
@@ -77,7 +77,7 @@ public class DoilySettings {
 		this.interpolate = interpolate;
 	}
 
-	
+
 	/**
 	 * Gets the number of sectors.
 	 * @return The number of sectors
@@ -243,5 +243,5 @@ public class DoilySettings {
 		return new DoilySettings(sectors, showSeparators, showRings, useImage, 
 				antiAlias, penScale, penColor, reflect, circleBounded, interpolate);
 	}
-	
+
 }

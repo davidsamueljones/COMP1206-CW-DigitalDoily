@@ -4,12 +4,11 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Image;
 import java.awt.Insets;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -47,13 +46,26 @@ public class DigitalDoily extends JFrame {
 	private static final Dimension GUI_START_SIZE = new Dimension(
 			(int)Math.round(GUI_MINIMUM_SIZE.width*GUI_DEFAULT_SCALE), 
 			(int)Math.round(GUI_MINIMUM_SIZE.height*GUI_DEFAULT_SCALE));
-	
+
 	// Gallery/Saving Defaults
 	private static final int MAX_GALLERY_IMAGES = 12;
 	private static final double GALLERY_IMG_RATIO = 1; // Ratio of Width->Height
-	private static final int GALLERY_EXPORT_HEIGHT = 5000;
-	private static final Dimension GALLERY_EXPORT_DIMENSION = 
-			new Dimension(GALLERY_EXPORT_HEIGHT, (int) Math.round(GALLERY_EXPORT_HEIGHT*GALLERY_IMG_RATIO));
+
+	// Instance variables
+	DoilyState doily;
+
+	// GUI Setting Objects
+	JSlider sldSectors;
+	FixedWidthLabel lblSectorCount;
+	JCheckBox chkShowSeparators;
+	JCheckBox chkShowRings;
+	JCheckBox chkUseImage;
+	JCheckBox chkAntiAlias;
+	JSlider sldPenScale;
+	FixedWidthLabel lblPenScaleValue;
+	JCheckBox chkReflect;
+	JCheckBox chkCircleBound;
+	JCheckBox chkInterpolate;
 
 	/**
 	 * Instantiates a new doily frame.
@@ -65,7 +77,7 @@ public class DigitalDoily extends JFrame {
 		if (!SwingUtilities.isEventDispatchThread()) {
 			throw new IllegalThreadStateException("DigitalDoily not being loaded on event dispatch thread");
 		}	
-		
+
 		// Set frame properties
 		this.setTitle(GUI_NAME);
 		this.setBounds(100, 100, GUI_START_SIZE.width, GUI_START_SIZE.height);
@@ -102,7 +114,6 @@ public class DigitalDoily extends JFrame {
 
 		// [Main Panel] <- 'Display' DoilyPanel
 		DoilyPanel pnlDisplay = new DoilyPanel();
-		DoilySettings settings = pnlDisplay.getSettings();
 		pnlDisplay.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
 		pnlDisplay.setBackground(Color.BLACK);
 		GridBagConstraints gbc_pnlDisplay = new GridBagConstraints();
@@ -167,7 +178,7 @@ public class DigitalDoily extends JFrame {
 		gbc_btnClear.gridx = 0;
 		gbc_btnClear.gridy = 0;
 		pnlDrawingControls.add(btnClear, gbc_btnClear);
-		
+
 		// [Drawing Controls] <- 'Undo & Redo' Buttons
 		JPanel pnlUndoRedo = new JPanel();
 		GridBagConstraints gbc_pnlUndoRedo = new GridBagConstraints();
@@ -180,7 +191,7 @@ public class DigitalDoily extends JFrame {
 		GridBagLayout gbl_pnlUndoRedo = new GridBagLayout();
 		gbl_pnlUndoRedo.columnWeights = new double[]{0.5, 0.5};
 		pnlUndoRedo.setLayout(gbl_pnlUndoRedo);
-		
+
 		JButton btnUndo = new JButton("Undo");
 		GridBagConstraints gbc_btnUndo = new GridBagConstraints();
 		gbc_btnUndo.insets = new Insets(0, 0, 0, 2);
@@ -188,7 +199,6 @@ public class DigitalDoily extends JFrame {
 		gbc_btnUndo.gridx = 0;
 		gbc_btnUndo.gridy = 0;
 		pnlUndoRedo.add(btnUndo, gbc_btnUndo);
-
 
 		JButton btnRedo = new JButton("Redo");
 		GridBagConstraints gbc_btnRedo = new GridBagConstraints();
@@ -228,10 +238,9 @@ public class DigitalDoily extends JFrame {
 		gbc_lblSectors.gridy = 0;
 		pnlSectors.add(lblSectors, gbc_lblSectors);
 
-		JSlider sldSectors = new JSlider();
+		sldSectors = new JSlider();
 		sldSectors.setMinimum(DoilySettings.MIN_SECTORS);
 		sldSectors.setMaximum(DoilySettings.MAX_SECTORS);
-		sldSectors.setValue(settings.getSectors());
 		sldSectors.setPaintTicks(true);
 		sldSectors.setPaintLabels(true);
 		sldSectors.setMajorTickSpacing(DoilySettings.MAX_SECTORS-DoilySettings.MIN_SECTORS);
@@ -242,8 +251,7 @@ public class DigitalDoily extends JFrame {
 		pnlSectors.add(sldSectors, gbc_sldSectors);
 
 		// Displays the current sector count
-		FixedWidthLabel lblSectorCount = new FixedWidthLabel(25);
-		lblSectorCount.setText(String.valueOf(settings.getSectors()));
+		lblSectorCount = new FixedWidthLabel(25);
 		GridBagConstraints gbc_lblSectorCount = new GridBagConstraints();
 		gbc_lblSectorCount.anchor = GridBagConstraints.EAST;
 		gbc_lblSectorCount.gridx = 2;
@@ -251,8 +259,7 @@ public class DigitalDoily extends JFrame {
 		pnlSectors.add(lblSectorCount, gbc_lblSectorCount);
 
 		// [Drawing Controls] <- 'Show Separators' Check Box
-		JCheckBox chkShowSeparators = new JCheckBox("Show Separators");
-		chkShowSeparators.setSelected(settings.isShowSeparators());
+		chkShowSeparators = new JCheckBox("Show Separators");
 		GridBagConstraints gbc_chkShowSeparators = new GridBagConstraints();
 		gbc_chkShowSeparators.anchor = GridBagConstraints.WEST;
 		gbc_chkShowSeparators.insets = new Insets(0, 5, 5, 0);
@@ -261,8 +268,7 @@ public class DigitalDoily extends JFrame {
 		pnlDrawingControls.add(chkShowSeparators, gbc_chkShowSeparators);
 
 		// [Drawing Controls] <- 'Show Rings' Check Box
-		JCheckBox chkShowRings = new JCheckBox("Show Rings");
-		chkShowRings.setSelected(settings.isShowRings());
+		chkShowRings = new JCheckBox("Show Rings");
 		GridBagConstraints gbc_chkShowRings = new GridBagConstraints();
 		gbc_chkShowRings.anchor = GridBagConstraints.WEST;
 		gbc_chkShowRings.insets = new Insets(0, 0, 5, 0);
@@ -281,8 +287,7 @@ public class DigitalDoily extends JFrame {
 		pnlDrawingControls.add(separator_2, gbc_separator_2);
 
 		// [Drawing Controls] <- 'Use Image' Check Box
-		JCheckBox chkUseImage = new JCheckBox("Render as Image");
-		chkUseImage.setSelected(settings.isUseImage());
+		chkUseImage = new JCheckBox("Render as Image");
 		GridBagConstraints gbc_chkUseImage = new GridBagConstraints();
 		gbc_chkUseImage.anchor = GridBagConstraints.WEST;
 		gbc_chkUseImage.insets = new Insets(0, 5, 5, 0);
@@ -291,8 +296,7 @@ public class DigitalDoily extends JFrame {
 		pnlDrawingControls.add(chkUseImage, gbc_chkUseImage);
 
 		// [Drawing Controls] <- 'Anti-Alias' Check Box
-		JCheckBox chkAntiAlias = new JCheckBox("Anti-Alias");
-		chkAntiAlias.setSelected(settings.isAntiAlias());
+		chkAntiAlias = new JCheckBox("Anti-Alias");
 		GridBagConstraints gbc_chkAntiAlias = new GridBagConstraints();
 		gbc_chkAntiAlias.anchor = GridBagConstraints.WEST;
 		gbc_chkAntiAlias.insets = new Insets(0, 0, 5, 0);
@@ -334,11 +338,10 @@ public class DigitalDoily extends JFrame {
 		gbc_lblPenScale.gridx = 0;
 		gbc_lblPenScale.gridy = 0;
 		pnlPenScale.add(lblPenScale, gbc_lblPenScale);
-		
-		JSlider sldPenScale = new JSlider();
+
+		sldPenScale = new JSlider();
 		sldPenScale.setMinimum(DoilySettings.MIN_PEN_SIZE);
 		sldPenScale.setMaximum(DoilySettings.MAX_PEN_SIZE);
-		sldPenScale.setValue(settings.getPenScale());
 		sldPenScale.setPaintTicks(true);
 		sldPenScale.setPaintLabels(true);
 		sldPenScale.setMajorTickSpacing(DoilySettings.MAX_PEN_SIZE-DoilySettings.MIN_PEN_SIZE);
@@ -347,10 +350,9 @@ public class DigitalDoily extends JFrame {
 		gbc_sldPenScale.gridx = 1;
 		gbc_sldPenScale.gridy = 0;
 		pnlPenScale.add(sldPenScale, gbc_sldPenScale);
-		
+
 		// Displays the current pen scale
-		FixedWidthLabel lblPenScaleValue = new FixedWidthLabel(25);
-		lblPenScaleValue.setText(String.valueOf(settings.getPenScale()));
+		lblPenScaleValue = new FixedWidthLabel(25);
 		GridBagConstraints gbc_lblPenSize = new GridBagConstraints();
 		gbc_lblPenSize.anchor = GridBagConstraints.EAST;
 		gbc_lblPenSize.gridx = 2;
@@ -368,8 +370,7 @@ public class DigitalDoily extends JFrame {
 		pnlPenSettings.add(btnSetColour, gbc_btnSetColour);
 
 		// [Pen Settings] <- 'Reflect Points' Check Box
-		JCheckBox chkReflect = new JCheckBox("Reflect Points");
-		chkReflect.setSelected(settings.isReflect());
+		chkReflect = new JCheckBox("Reflect Points");
 		GridBagConstraints gbc_chkReflect = new GridBagConstraints();
 		gbc_chkReflect.anchor = GridBagConstraints.WEST;
 		gbc_chkReflect.insets = new Insets(0, 5, 5, 5);
@@ -377,10 +378,9 @@ public class DigitalDoily extends JFrame {
 		gbc_chkReflect.gridx = 0;
 		gbc_chkReflect.gridy = 2;
 		pnlPenSettings.add(chkReflect, gbc_chkReflect);
-		
+
 		// [Pen Settings] <- 'Bind to Circle' Check Box
-		JCheckBox chkCircleBound = new JCheckBox("Bind to Circle");
-		chkCircleBound.setSelected(settings.isCircleBounded());
+		chkCircleBound = new JCheckBox("Bind to Circle");
 		GridBagConstraints gbc_chkCircleBound = new GridBagConstraints();
 		gbc_chkCircleBound.anchor = GridBagConstraints.WEST;
 		gbc_chkCircleBound.insets = new Insets(0, 5, 5, 5);
@@ -389,8 +389,7 @@ public class DigitalDoily extends JFrame {
 		pnlPenSettings.add(chkCircleBound, gbc_chkCircleBound);
 
 		// [Pen Settings] <- 'Interpolate' Check Box
-		JCheckBox chkInterpolate = new JCheckBox("Interpolate");
-		chkInterpolate.setSelected(settings.isInterpolate());
+		chkInterpolate = new JCheckBox("Interpolate");
 		GridBagConstraints gbc_chkInterpolate = new GridBagConstraints();
 		gbc_chkInterpolate.anchor = GridBagConstraints.WEST;
 		gbc_chkInterpolate.fill = GridBagConstraints.HORIZONTAL;
@@ -398,7 +397,7 @@ public class DigitalDoily extends JFrame {
 		gbc_chkInterpolate.gridx = 1;
 		gbc_chkInterpolate.gridy = 3;
 		pnlPenSettings.add(chkInterpolate, gbc_chkInterpolate);
-		
+
 		// [Pen Settings] <- Separator
 		JSeparator separator_3 = new JSeparator();
 		GridBagConstraints gbc_separator_3 = new GridBagConstraints();
@@ -422,7 +421,7 @@ public class DigitalDoily extends JFrame {
 		GridBagLayout gbl_pnlPreviewHolder = new GridBagLayout();
 		gbl_pnlPreviewHolder.columnWeights = new double[]{0.0, 1.0};
 		pnlPreviewHolder.setLayout(gbl_pnlPreviewHolder);
-		
+
 		JLabel lblPreview = new JLabel("Preview:");
 		GridBagConstraints gbc_lblPreview = new GridBagConstraints();
 		gbc_lblPreview.anchor = GridBagConstraints.WEST;
@@ -438,8 +437,8 @@ public class DigitalDoily extends JFrame {
 				super.paintComponent(gr);
 				Graphics2D g = (Graphics2D) gr;
 				// Get pen properties
-				int size = DoilyUtilities.getPenSize(settings.getPenScale(), pnlDisplay.getSize());
-				g.setColor(settings.getPenColor());
+				int size = DoilyUtilities.getPenSize(doily.settings.getPenScale(), pnlDisplay.getSize());
+				g.setColor(doily.settings.getPenColor());
 				g.setRenderingHints(new RenderingHints(RenderingHints.KEY_ANTIALIASING, 
 						RenderingHints.VALUE_ANTIALIAS_ON));
 				// Draw oval
@@ -466,35 +465,52 @@ public class DigitalDoily extends JFrame {
 		gbc_pnlGalleryControls.gridy = 2;
 		pnlControl.add(pnlGalleryControls, gbc_pnlGalleryControls);
 		GridBagLayout gbl_pnlGalleryControls = new GridBagLayout();
-		gbl_pnlGalleryControls.columnWeights = new double[]{1.0};
+		gbl_pnlGalleryControls.columnWeights = new double[]{0.5, 0.5};
 		pnlGalleryControls.setLayout(gbl_pnlGalleryControls);
 
 		// [Gallery Controls] <- 'Save' Button	
 		JButton btnSave = new JButton("Save to Gallery");
 		GridBagConstraints gbc_btnSave = new GridBagConstraints();
+		gbc_btnSave.gridwidth = 2;
 		gbc_btnSave.fill = GridBagConstraints.HORIZONTAL;
 		gbc_btnSave.insets = new Insets(5, 5, 5, 5);
 		gbc_btnSave.gridx = 0;
 		gbc_btnSave.gridy = 0;
 		pnlGalleryControls.add(btnSave, gbc_btnSave);
 
+		// [Gallery Controls] <- 'Load' Button
+		JButton btnLoadSelected = new JButton("Load");
+		GridBagConstraints gbc_btnLoadSelected = new GridBagConstraints();
+		gbc_btnLoadSelected.fill = GridBagConstraints.HORIZONTAL;
+		gbc_btnLoadSelected.insets = new Insets(0, 5, 5, 2);
+		gbc_btnLoadSelected.gridx = 0;
+		gbc_btnLoadSelected.gridy = 1;
+		pnlGalleryControls.add(btnLoadSelected, gbc_btnLoadSelected);
+
 		// [Gallery Controls] <- 'Export' Button
-		JButton btnExportSelected = new JButton("Export Selected");
+		JButton btnExportSelected = new JButton("Export");
 		GridBagConstraints gbc_btnExportSelected = new GridBagConstraints();
 		gbc_btnExportSelected.fill = GridBagConstraints.HORIZONTAL;
-		gbc_btnExportSelected.insets = new Insets(0, 5, 5, 5);
-		gbc_btnExportSelected.gridx = 0;
+		gbc_btnExportSelected.insets = new Insets(0, 2, 5, 5);
+		gbc_btnExportSelected.gridx = 1;
 		gbc_btnExportSelected.gridy = 1;
 		pnlGalleryControls.add(btnExportSelected, gbc_btnExportSelected);
 
 		// [Gallery Controls] <- 'Remove' Button
-		JButton btnRemoveSelected = new JButton("Remove Selected");
+		JButton btnRemoveSelected = new JButton("Remove");
 		GridBagConstraints gbc_btnRemoveSelected = new GridBagConstraints();
+		gbc_btnRemoveSelected.gridwidth = 2;
 		gbc_btnRemoveSelected.fill = GridBagConstraints.HORIZONTAL;
 		gbc_btnRemoveSelected.insets = new Insets(0, 5, 5, 5);
 		gbc_btnRemoveSelected.gridx = 0;
 		gbc_btnRemoveSelected.gridy = 2;
 		pnlGalleryControls.add(btnRemoveSelected, gbc_btnRemoveSelected);
+
+		// -------------------------------------------------------------------------------------
+
+		// Get setup
+		doily = pnlDisplay.getDoily();
+		update();
 
 		// ------------------------------------------------------------------------------------
 
@@ -538,7 +554,7 @@ public class DigitalDoily extends JFrame {
 		sldSectors.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				int sectors = sldSectors.getValue();
-				settings.setSectors(sectors);
+				doily.settings.setSectors(sectors);
 				lblSectorCount.setText(String.valueOf(sectors));
 				pnlDisplay.redraw();
 			}
@@ -548,7 +564,7 @@ public class DigitalDoily extends JFrame {
 		// Update Show Separator settings value
 		chkShowSeparators.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
-				settings.setShowSeparators(chkShowSeparators.isSelected());
+				doily.settings.setShowSeparators(chkShowSeparators.isSelected());
 				pnlDisplay.redraw();
 			}
 		});
@@ -557,7 +573,7 @@ public class DigitalDoily extends JFrame {
 		// Update Show Rings settings value
 		chkShowRings.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
-				settings.setShowRings(chkShowRings.isSelected());
+				doily.settings.setShowRings(chkShowRings.isSelected());
 				pnlDisplay.redraw();
 			}
 		});
@@ -566,7 +582,7 @@ public class DigitalDoily extends JFrame {
 		// Update Use Image settings value
 		chkUseImage.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
-				settings.setUseImage(chkUseImage.isSelected());
+				doily.settings.setUseImage(chkUseImage.isSelected());
 				pnlDisplay.redraw();
 			}
 		});
@@ -575,7 +591,7 @@ public class DigitalDoily extends JFrame {
 		// Update Anti-Aliasing settings value
 		chkAntiAlias.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
-				settings.setAntiAlias(chkAntiAlias.isSelected());
+				doily.settings.setAntiAlias(chkAntiAlias.isSelected());
 				pnlDisplay.redraw();
 			}
 		});
@@ -585,7 +601,7 @@ public class DigitalDoily extends JFrame {
 		sldPenScale.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				int penScale = sldPenScale.getValue();
-				settings.setPenScale(penScale);
+				doily.settings.setPenScale(penScale);
 				lblPenScaleValue.setText(String.valueOf(penScale));
 				pnlPreview.repaint();
 			}
@@ -597,9 +613,9 @@ public class DigitalDoily extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				// Use JColorChooser, null returned on cancel
 				Color color = JColorChooser.showDialog(null, 
-						"Choose pen Color", settings.getPenColor());
+						"Choose pen Color", doily.settings.getPenColor());
 				if (color != null) {
-					settings.setPenColor(color);
+					doily.settings.setPenColor(color);
 					pnlPreview.repaint();
 				}
 			}
@@ -609,7 +625,7 @@ public class DigitalDoily extends JFrame {
 		// Update Pen Reflect settings value
 		chkReflect.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
-				settings.setReflect(chkReflect.isSelected());
+				doily.settings.setReflect(chkReflect.isSelected());
 			}
 		});
 
@@ -617,30 +633,51 @@ public class DigitalDoily extends JFrame {
 		// Update Pen Circle Bound settings value
 		chkCircleBound.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
-				settings.setCircleBounded(chkCircleBound.isSelected());
+				doily.settings.setCircleBounded(chkCircleBound.isSelected());
 			}
 		});
-		
+
 		// [Interpolate Check Box]
 		// Update Interpolate settings value
 		chkInterpolate.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
-				settings.setInterpolate(chkInterpolate.isSelected());
+				doily.settings.setInterpolate(chkInterpolate.isSelected());
 			}
 		});
-		
+
 
 		// [Save Button]
 		// Save the display to the gallery
 		btnSave.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// Use the display to generate a high quality image of the current drawing
-				BufferedImage imgHQ = pnlDisplay.getDoily(
-						new Dimension(GALLERY_EXPORT_DIMENSION.width, GALLERY_EXPORT_DIMENSION.height));
-				// Use the display to generate a low quality thumbnail - quicker than scaling high quality
-				Image imgThumbnail = pnlDisplay.getDoily(pnlGallery.getImageDimensions());
 				// Add the image to the gallery
-				pnlGallery.addImage(imgHQ, imgThumbnail);
+				pnlGallery.addImage(pnlDisplay.getDoily().clone());
+			}
+		});
+
+		// [Load Button]
+		// Loads a selected item from the gallery
+		btnLoadSelected.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				// Error if no items or more than one are selected
+				ArrayList<GalleryImage> selected = pnlGallery.getSelected();
+				if (selected.size() != 1) {
+					JOptionPane.showMessageDialog(null,
+							"Load Failed - Exactly one gallery image must be selected", 
+							"Load Selected", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				// Get confirmation from the user
+				int res = JOptionPane.showConfirmDialog(null, 
+						"Are you sure you want to load the selected gallery image?", 
+						"Load Selected",  JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+				if (res == JOptionPane.YES_OPTION)
+				{
+					// Trigger load
+					doily = selected.get(0).getDoily().clone();
+					pnlDisplay.setDoily(doily);
+					update();
+				}
 			}
 		});
 
@@ -656,16 +693,16 @@ public class DigitalDoily extends JFrame {
 					return;
 				}
 				// Get a filename from the user, null if cancelled, error on empty string
-				String res = JOptionPane.showInputDialog("Please input the export filename: ");
-				if (res != null) {
-					if (res.equals("")) {
+				String filename = JOptionPane.showInputDialog("Please input the export filename: ");
+				if (filename != null) {
+					if (filename.equals("")) {
 						JOptionPane.showMessageDialog(null,
 								"Export Failed - No export filename provided", 
 								"Export Selected", JOptionPane.ERROR_MESSAGE);
 					}
 					else {
 						// Trigger export
-						pnlGallery.exportSelected(res);
+						pnlGallery.exportSelected(filename);
 					}
 				}
 			}
@@ -696,11 +733,28 @@ public class DigitalDoily extends JFrame {
 	}
 
 	/**
+	 * Update values of GUI setting objects 
+	 */
+	private void update() {
+		sldSectors.setValue(doily.settings.getSectors());
+		lblSectorCount.setText(String.valueOf(doily.settings.getSectors()));
+		chkShowSeparators.setSelected(doily.settings.isShowSeparators());
+		chkShowRings.setSelected(doily.settings.isShowRings());
+		chkUseImage.setSelected(doily.settings.isUseImage());
+		chkAntiAlias.setSelected(doily.settings.isAntiAlias());
+		sldPenScale.setValue(doily.settings.getPenScale());
+		lblPenScaleValue.setText(String.valueOf(doily.settings.getPenScale()));
+		chkReflect.setSelected(doily.settings.isReflect());
+		chkCircleBound.setSelected(doily.settings.isCircleBounded());
+		chkInterpolate.setSelected(doily.settings.isInterpolate());
+	}
+
+	/**
 	 * Inner class defined so strings can be displayed in a fixed width.
 	 */
 	class FixedWidthLabel extends JLabel {
 		private int width;
-		
+
 		/**
 		 * Constructor for FixedWidthLabel
 		 * @param width Width of string
@@ -708,11 +762,12 @@ public class DigitalDoily extends JFrame {
 		public FixedWidthLabel(int width) {
 			this.width = width;
 		}
-	
+
 		@Override
 		public void setText(String str) {
 			super.setText(String.format("<html><div WIDTH=%d>%s</div><html>", width, str));
 		}
-		
+
 	}
+
 }

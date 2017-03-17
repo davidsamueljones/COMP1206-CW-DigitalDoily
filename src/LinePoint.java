@@ -13,7 +13,7 @@ public class LinePoint {
 	private double clockwiseScale;  // Position as a percentage of the clockwise arc length
 
 	/**
-	 * Instantiates a new gallery panel.
+	 * Instantiates a new line point.
 	 * @param orbitScale The orbit scale
 	 * @param clockwiseScale The clockwise scale
 	 */
@@ -81,7 +81,7 @@ public class LinePoint {
 		return new Point((int)Math.round(Math.sin(angle)*orbit),
 				-(int)Math.round(Math.cos(angle)*orbit));
 	}
-	
+
 	/**
 	 * Convert an absolute point (from a centre) to a scaled point using positioning values.
 	 * Use settings to determine invalid points and use a previous point to handle wrapped values.
@@ -110,7 +110,7 @@ public class LinePoint {
 			double lowerAngle = sectorAngle*sector;
 			double upperAngle = lowerAngle + sectorAngle;
 			double maxDistance = radius - DoilyUtilities.getPenSize(settings.getPenScale(), d)/2;
-			
+
 			// If point is within sector bounds
 			if (lowerAngle <= radPos && upperAngle > radPos && 
 					(!settings.isCircleBounded() || distance < maxDistance)) {
@@ -135,5 +135,5 @@ public class LinePoint {
 	public LinePoint clone() {
 		return new LinePoint(orbitScale, clockwiseScale);
 	}
-	
+
 }
