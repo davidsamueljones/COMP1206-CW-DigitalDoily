@@ -25,7 +25,7 @@ The program can then be ran through the Main class:
 
 There are no arguments.
 
-NOTE:
+POINT SYSTEM & GRAPHICAL OPTIONS:
 --------------------------------------------------------------
 * Point mapping is achieved using a relative coordinate system.
   Specifically when a point is recorded, it is converted into a
@@ -49,13 +49,14 @@ NOTE:
 
 * By default all points are redrawn directly onto the panel. This
   offers the best graphical output (especially on high resolution
-  displays with scaling enabled), best resize performance and is very 
-  usable in terms of drawing performance until complexity is high.
+  displays with scaling enabled) and is very usable in terms of drawing 
+  performance until complexity is high.
   Another drawing method can be toggled using a checkbox so that
   a buffered image is drawn instead. This buffered image remembers
   existing points and means only new points must be drawn. This mode
   means performance is fast for even complex drawings but quality
-  suffers significantly and it does not scale quickly.
+  suffers significantly but full redraws are slower (i.e. undo,
+  window resize).
   Both methods are fully functional, however, the default mode is 
   most tested.
 
@@ -65,7 +66,7 @@ NOTE:
 * When drawing directly onto the panel, drawings should be made with 
   anti-aliasing turned off due to the significant performance impact. 
   Toggle after to redraw with anti-aliasing. If performance is greatly
-  suffering, use draw image.
+  suffering, use draw image also.
 
 * Preview shows the current pen size (scaled) and colour.
 
@@ -73,13 +74,17 @@ NOTE:
   doily circle and is togglable per line drawn as opposed to clipping
   the displayed doily.
 
+GALLERY:
+--------------------------------------------------------------
+
 * Selection in the gallery can use modifiers (Shift/Ctrl). If
   one is held then multiple gallery images can be selected or
   deselected. 
 
+* An image in the gallery can be reloaded into the drawing panel
+  with the settings at point of save using the load button. 
+  This is editable, thus allowing saving of states.
+
 * There is export functionality in the gallery, this is limited as
   it is not a requirement but it exports a 5000x5000 scaled version 
   of the Doily Panel; this can take a while for complex drawings!
- 
-
-
